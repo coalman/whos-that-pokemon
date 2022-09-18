@@ -59,10 +59,13 @@ const Home: NextPage<{
         <div>
           <PokemonNameInput
             guessEnabled={!reveal}
+            pokemonList={props.pokemonList}
             value={guess}
             onChange={setGuess}
-            onGuess={(_pokemonName) => {
+            onGuess={(pokemonName) => {
               setReveal(true);
+              setGuess(pokemonName);
+
               setTimeout(() => {
                 setReveal(false);
                 setGuess("");
