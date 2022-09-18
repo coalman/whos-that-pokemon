@@ -3,6 +3,7 @@ import Head from "next/head";
 import { useState } from "react";
 import { PokemonClient } from "pokenode-ts";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
+import PokemonNameInput from "components/PokemonNameInput";
 
 const Home: NextPage<{
   pokemonList: readonly string[];
@@ -10,6 +11,8 @@ const Home: NextPage<{
   const [reveal, setReveal] = useState(false);
 
   const [pokemonIndex, setPokemonIndex] = useState(0);
+
+  const [guess, setGuess] = useState("");
 
   const imgSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${
     pokemonIndex + 1
@@ -37,18 +40,21 @@ const Home: NextPage<{
           revealed={reveal}
         />
 
-        <button className="border" onClick={() => setReveal((v) => !v)}>
-          Reveal
-        </button>
-        <button
-          className="border"
-          onClick={() => {
-            setReveal(false);
-            setPokemonIndex(getRandomInteger(props.pokemonList.length));
-          }}
-        >
-          Next
-        </button>
+        <div>
+          <PokemonNameInput
+            guessEnabled={!reveal}
+            value={guess}
+            onChange={setGuess}
+            onGuess={(_pokemonName) => {
+              setReveal(true);
+              setTimeout(() => {
+                setReveal(false);
+                setGuess("");
+                setPokemonIndex(getRandomInteger(props.pokemonList.length));
+              }, 3_000);
+            }}
+          />
+        </div>
       </main>
     </div>
   );
