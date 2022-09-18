@@ -1,22 +1,31 @@
 import type { NextPage, GetStaticProps } from "next";
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PokemonClient } from "pokenode-ts";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
 import PokemonNameInput from "components/PokemonNameInput";
+
+const getPokemonImgSrc = (index: number) =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${index}.png`;
 
 const Home: NextPage<{
   pokemonList: readonly string[];
 }> = (props) => {
   const [reveal, setReveal] = useState(false);
 
-  const [pokemonIndex, setPokemonIndex] = useState(0);
+  const [pokemonIndex, setPokemonIndex] = useState<number | undefined>(
+    undefined
+  );
+  useEffect(() => {
+    if (pokemonIndex === undefined) {
+      setPokemonIndex(getRandomInteger(props.pokemonList.length));
+    }
+  }, [pokemonIndex, props.pokemonList.length]);
 
   const [guess, setGuess] = useState("");
 
-  const imgSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${
-    pokemonIndex + 1
-  }.png`;
+  const pokemonName =
+    pokemonIndex !== undefined ? props.pokemonList[pokemonIndex] : undefined;
 
   return (
     <div>
@@ -30,13 +39,20 @@ const Home: NextPage<{
         <h1>Who's that Pokemon?</h1>
         <h2 style={{ visibility: reveal ? "visible" : "hidden" }}>
           {"It's "}
-          <span className="capitalize">{props.pokemonList[pokemonIndex]}</span>
+          <span className="capitalize">{pokemonName ?? ""}</span>
           {"!"}
+        </h2>
+        <h2 style={{ visibility: reveal ? "visible" : "hidden" }}>
+          {pokemonName === guess ? "Correct" : "Incorrect"}
         </h2>
 
         <PokemonImageQuestion
           style={{ width: 500, height: 500 }}
-          imgSrc={imgSrc}
+          imgSrc={
+            pokemonIndex !== undefined
+              ? getPokemonImgSrc(pokemonIndex + 1)
+              : undefined
+          }
           revealed={reveal}
         />
 
