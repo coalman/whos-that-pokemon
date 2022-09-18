@@ -1,20 +1,8 @@
 import type { NextPage, GetStaticProps } from "next";
 import Head from "next/head";
-import Image from "next/image";
 import { useState } from "react";
 import { PokemonClient } from "pokenode-ts";
-
-/**
- * NOTE: all images in the official-artwork directory are 475 x 475.
- *
- * Verified with the following bash code:
- *
- * ```bash
- * $ cd sprites/pokemon/other/official-artwork
- * $ for f in ./*.png; do file "$f" | awk -F, '{print $2}'; done | uniq
- * ```
- */
-const imgSrcSize = { width: 475, height: 475 } as const;
+import PokemonImageQuestion from "components/PokemonImageQuestion";
 
 const Home: NextPage<{
   pokemonList: readonly string[];
@@ -43,7 +31,11 @@ const Home: NextPage<{
           {"!"}
         </h2>
 
-        <PokemonImage {...imgSrcSize} imgSrc={imgSrc} revealed={reveal} />
+        <PokemonImageQuestion
+          style={{ width: 500, height: 500 }}
+          imgSrc={imgSrc}
+          revealed={reveal}
+        />
 
         <button className="border" onClick={() => setReveal((v) => !v)}>
           Reveal
@@ -69,42 +61,6 @@ export const getStaticProps: GetStaticProps = async () => {
   const pokemonList = await pokeApi.listPokemons(0, 151);
 
   return { props: { pokemonList: pokemonList.results.map((r) => r.name) } };
-};
-
-const PokemonImage = (props: {
-  width: number;
-  height: number;
-  imgSrc: string;
-  revealed: boolean;
-}) => {
-  const { width, height } = props;
-
-  return (
-    <div
-      className="inline-flex justify-center items-center relative"
-      style={{ width, height }}
-    >
-      <Image
-        // set visibility to prevent flashing the revealed pokemon if the mask doesn't load first.
-        style={{ visibility: props.revealed ? "visible" : "hidden" }}
-        src={props.imgSrc}
-        layout="intrinsic"
-        width={width}
-        height={height}
-      />
-      {!props.revealed && (
-        <div
-          // NOTE: mask-{size,image} need webkit prefixes (chrome/edge atm), so we use tailwind here instead of inline styles.
-          className="absolute bg-black [mask-size:contain] [mask-image:var(--url)]"
-          style={{
-            ["--url" as "maskImage"]: `url(${props.imgSrc})`,
-            width,
-            height,
-          }}
-        />
-      )}
-    </div>
-  );
 };
 
 /**
