@@ -92,7 +92,9 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
               }
             } else if (event.key === "ArrowDown") {
               setSelectedChoice((choice) =>
-                choice !== undefined ? choice + 1 : 0
+                choice !== undefined
+                  ? Math.min(choice + 1, choices.length - 1)
+                  : 0
               );
             } else if (event.key === "ArrowUp") {
               setSelectedChoice((choice) =>
