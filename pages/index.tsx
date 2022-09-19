@@ -35,16 +35,14 @@ const Home: NextPage<{
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <h1>Who's that Pokemon?</h1>
-        <h2 style={{ visibility: reveal ? "visible" : "hidden" }}>
-          {"It's "}
+      <main className="flex flex-col items-center gap-8 pt-8">
+        <h1 className="text-2xl">Who's that Pokemon?</h1>
+        <span style={{ visibility: reveal ? "visible" : "hidden" }}>
+          {pokemonName === guess ? "Correct" : "Incorrect"}
+          {"! It's "}
           <span className="capitalize">{pokemonName ?? ""}</span>
           {"!"}
-        </h2>
-        <h2 style={{ visibility: reveal ? "visible" : "hidden" }}>
-          {pokemonName === guess ? "Correct" : "Incorrect"}
-        </h2>
+        </span>
 
         <PokemonImageQuestion
           style={{ width: 500, height: 500 }}

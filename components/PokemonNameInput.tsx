@@ -58,7 +58,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
     <Fragment>
       <input
         ref={refInput}
-        className="border"
+        className="bg-slate-50 text-slate-800"
         type="text"
         role="combobox"
         aria-owns={listboxId}
