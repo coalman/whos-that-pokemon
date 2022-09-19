@@ -46,7 +46,7 @@ const Silhouette = (props: { className?: string; imgSrc: string }) => {
     <div
       className={clsx(
         props.className,
-        "bg-black w-full h-full",
+        "bg-slate-300 w-full h-full",
         // NOTE: most mask-* properties need webkit prefixes (chrome/edge atm), so we use tailwind here instead of inline styles.
         "[mask-image:var(--url)] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center]"
       )}

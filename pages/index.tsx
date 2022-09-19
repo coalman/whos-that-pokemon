@@ -35,42 +35,45 @@ const Home: NextPage<{
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex flex-col items-center gap-8 pt-8">
-        <h1 className="text-2xl">Who's that Pokemon?</h1>
-        <span style={{ visibility: reveal ? "visible" : "hidden" }}>
-          {pokemonName === guess ? "Correct" : "Incorrect"}
-          {"! It's "}
-          <span className="capitalize">{pokemonName ?? ""}</span>
-          {"!"}
-        </span>
+      <main className="flex flex-col items-center gap-8">
+        <div className="text-center pt-8">
+          <h1 className="text-2xl">Who's that Pokemon?</h1>
+          <span style={{ visibility: reveal ? "visible" : "hidden" }}>
+            {pokemonName === guess ? "Correct" : "Incorrect"}
+            {"! It's "}
+            <span className="capitalize">{pokemonName ?? ""}</span>
+            {"!"}
+          </span>
+        </div>
 
-        <PokemonImageQuestion
-          style={{ width: 500, height: 500 }}
-          imgSrc={
-            pokemonIndex !== undefined
-              ? getPokemonImgSrc(pokemonIndex + 1)
-              : undefined
-          }
-          revealed={reveal}
-        />
-
-        <div>
-          <PokemonNameInput
-            guessEnabled={!reveal}
-            pokemonList={props.pokemonList}
-            value={guess}
-            onChange={setGuess}
-            onGuess={(pokemonName) => {
-              setReveal(true);
-              setGuess(pokemonName);
-
-              setTimeout(() => {
-                setReveal(false);
-                setGuess("");
-                setPokemonIndex(getRandomInteger(props.pokemonList.length));
-              }, 3_000);
-            }}
+        <div className="inline-flex gap-8 flex-col items-center lg:flex-row lg:justify-center lg:items-start">
+          <PokemonImageQuestion
+            style={{ width: 500, height: 500 }}
+            imgSrc={
+              pokemonIndex !== undefined
+                ? getPokemonImgSrc(pokemonIndex + 1)
+                : undefined
+            }
+            revealed={reveal}
           />
+          <div>
+            <PokemonNameInput
+              guessEnabled={!reveal}
+              pokemonList={props.pokemonList}
+              value={guess}
+              onChange={setGuess}
+              onGuess={(pokemonName) => {
+                setReveal(true);
+                setGuess(pokemonName);
+
+                setTimeout(() => {
+                  setReveal(false);
+                  setGuess("");
+                  setPokemonIndex(getRandomInteger(props.pokemonList.length));
+                }, 3_000);
+              }}
+            />
+          </div>
         </div>
       </main>
     </div>

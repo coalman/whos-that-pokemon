@@ -33,7 +33,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
       props.pokemonList
         .filter((pokemonName) => pokemonName.includes(props.value))
         // limit the number of results.
-        .slice(0, 10)
+        .slice(0, 5)
     );
   }, [props.pokemonList, props.value]);
 
@@ -58,7 +58,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
     <Fragment>
       <input
         ref={refInput}
-        className="bg-slate-50 text-slate-800"
+        className="bg-slate-900 border border-slate-50 py-2 text-center [width:500px]"
         type="text"
         role="combobox"
         aria-owns={listboxId}
@@ -110,7 +110,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
           choices.map((pokemonName, index) => (
             <li
               key={index}
-              className={clsx(index === selectedChoice ? "border" : "")}
+              className={clsx("py-1", index === selectedChoice ? "border" : "")}
               role="option"
               id={optionId(index)}
               aria-setsize={choices.length}
