@@ -56,61 +56,69 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
 
   return (
     <Fragment>
-      <input
-        ref={refInput}
-        className="bg-slate-900 border border-slate-50 py-2 text-center [width:500px]"
-        type="text"
-        role="combobox"
-        aria-owns={listboxId}
-        aria-expanded={choices.length > 0}
-        aria-describedby={descriptionId}
-        aria-autocomplete="list"
-        aria-activedescendant={
-          selectedChoice !== undefined ? optionId(selectedChoice) : undefined
-        }
-        autoComplete="off"
-        autoCapitalize="off"
-        readOnly={!props.guessEnabled}
-        value={props.value}
-        onChange={(event) => {
-          setShowChoices(true);
-          onChange(event.currentTarget.value);
-        }}
-        onKeyDown={(event) => {
-          let preventDefault = true;
-          if (event.key === "Enter") {
-            if (props.guessEnabled) {
-              setShowChoices(false);
+      <label>
+        <span className="block">Guess the Pokemon</span>
+        <input
+          ref={refInput}
+          className="bg-slate-900 border border-slate-50 py-2 rounded-lg outline-none text-center [width:500px]"
+          type="text"
+          role="combobox"
+          aria-owns={listboxId}
+          aria-expanded={choices.length > 0}
+          aria-describedby={descriptionId}
+          aria-autocomplete="list"
+          aria-activedescendant={
+            selectedChoice !== undefined ? optionId(selectedChoice) : undefined
+          }
+          autoComplete="off"
+          autoCapitalize="off"
+          readOnly={!props.guessEnabled}
+          value={props.value}
+          onChange={(event) => {
+            setShowChoices(true);
+            onChange(event.currentTarget.value);
+          }}
+          onKeyDown={(event) => {
+            let preventDefault = true;
+            if (event.key === "Enter") {
+              if (props.guessEnabled) {
+                setShowChoices(false);
 
-              let value = event.currentTarget.value;
-              if (selectedChoice !== undefined) {
-                value = choices[selectedChoice];
+                let value = event.currentTarget.value;
+                if (selectedChoice !== undefined) {
+                  value = choices[selectedChoice];
+                }
+                onGuess(value);
               }
-              onGuess(value);
+            } else if (event.key === "ArrowDown") {
+              setSelectedChoice((choice) =>
+                choice !== undefined ? choice + 1 : 0
+              );
+            } else if (event.key === "ArrowUp") {
+              setSelectedChoice((choice) =>
+                choice === undefined || choice === 0 ? undefined : choice - 1
+              );
+            } else {
+              preventDefault = false;
             }
-          } else if (event.key === "ArrowDown") {
-            setSelectedChoice((choice) =>
-              choice !== undefined ? choice + 1 : 0
-            );
-          } else if (event.key === "ArrowUp") {
-            setSelectedChoice((choice) =>
-              choice === undefined || choice === 0 ? undefined : choice - 1
-            );
-          } else {
-            preventDefault = false;
-          }
 
-          if (preventDefault) {
-            event.preventDefault();
-          }
-        }}
-      />
+            if (preventDefault) {
+              event.preventDefault();
+            }
+          }}
+        />
+      </label>
       <ul role="listbox" id={listboxId}>
         {showChoices &&
           choices.map((pokemonName, index) => (
             <li
               key={index}
-              className={clsx("py-1", index === selectedChoice ? "border" : "")}
+              className={clsx(
+                "py-1 capitalize border text-center m-2 cursor-pointer hover:border-slate-50",
+                index === selectedChoice
+                  ? "border-slate-50"
+                  : "border-transparent"
+              )}
               role="option"
               id={optionId(index)}
               aria-setsize={choices.length}

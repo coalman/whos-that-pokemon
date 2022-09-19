@@ -38,12 +38,6 @@ const Home: NextPage<{
       <main className="flex flex-col items-center gap-8">
         <div className="text-center pt-8">
           <h1 className="text-2xl">Who's that Pokemon?</h1>
-          <span style={{ visibility: reveal ? "visible" : "hidden" }}>
-            {pokemonName === guess ? "Correct" : "Incorrect"}
-            {"! It's "}
-            <span className="capitalize">{pokemonName ?? ""}</span>
-            {"!"}
-          </span>
         </div>
 
         <div className="inline-flex gap-8 flex-col items-center lg:flex-row lg:justify-center lg:items-start">
@@ -73,6 +67,14 @@ const Home: NextPage<{
                 }, 3_000);
               }}
             />
+            {reveal && (
+              <div className="py-2 text-center">
+                {pokemonName === guess ? "Correct" : "Incorrect"}
+                {"! It's "}
+                <span className="capitalize">{pokemonName ?? ""}</span>
+                {"!"}
+              </div>
+            )}
           </div>
         </div>
       </main>
