@@ -29,6 +29,7 @@ const PokemonImageQuestion = (props: PokemonImageQuestionProps) => {
             layout="fill"
             objectFit="contain"
             objectPosition="center"
+            alt="Pokemon to guess."
           />
           {!props.revealed && (
             <Silhouette className="absolute" imgSrc={props.imgSrc} />
