@@ -55,6 +55,7 @@ it("should select the first choice (with keyboard)", async () => {
   userEvent.type(input, "{ArrowDown}{Enter}");
 
   await waitFor(() => expect(input.value).toBe("p2"));
+  expect(screen.queryAllByRole("option")).toHaveLength(0);
 });
 
 it("should select the first choice (with mouse)", async () => {
@@ -69,6 +70,7 @@ it("should select the first choice (with mouse)", async () => {
   userEvent.click(firstOption);
 
   await waitFor(() => expect(input.value).toBe("p2"));
+  expect(screen.queryAllByRole("option")).toHaveLength(0);
 });
 
 it("should clear auto complete choices on Reset button click", async () => {

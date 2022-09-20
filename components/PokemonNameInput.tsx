@@ -21,8 +21,6 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
 
   const refInput = useRef<HTMLInputElement>(null);
 
-  const [showChoices, setShowChoices] = useState(false);
-
   const choices: readonly string[] = useMemo(() => {
     if (props.value.trim() === "") {
       return [];
@@ -57,7 +55,6 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
       return;
     }
 
-    setShowChoices(false);
     setSelectedChoice(undefined);
     onGuess(value);
   }
@@ -85,7 +82,6 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
         readOnly={!props.guessEnabled}
         value={props.value}
         onChange={(event) => {
-          setShowChoices(true);
           setSelectedChoice(undefined);
           onChange(event.currentTarget.value);
         }}
@@ -121,7 +117,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
         }}
       />
       <ul role="listbox" id={listboxId}>
-        {showChoices &&
+        {props.guessEnabled &&
           choices.map((pokemonName, index) => (
             <li
               key={index}
