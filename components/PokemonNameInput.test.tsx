@@ -19,11 +19,19 @@ const Test = (props: { choices: readonly string[] }) => {
           setGuess(pokemonName);
         }}
       />
+      <button
+        onClick={() => {
+          setGuessEnabled(true);
+          setGuess("");
+        }}
+      >
+        Reset
+      </button>
     </Fragment>
   );
 };
 
-it("should select the first choice after {ArrowDown}{Enter} keys", async () => {
+it("should select the first choice (with keyboard)", async () => {
   render(<Test choices={["p1", "p2", "p3"]} />);
 
   const input = screen.getByDisplayValue("") as HTMLInputElement;
@@ -34,4 +42,31 @@ it("should select the first choice after {ArrowDown}{Enter} keys", async () => {
   userEvent.type(input, "{ArrowDown}{Enter}");
 
   await waitFor(() => expect(input.value).toBe("p2"));
+});
+
+it("should select the first choice (with mouse)", async () => {
+  render(<Test choices={["p1", "p2", "p3"]} />);
+
+  const input = screen.getByDisplayValue("") as HTMLInputElement;
+
+  userEvent.type(input, "2");
+  await waitFor(() => expect(input.value).toBe("2"));
+
+  const { [0]: firstOption } = screen.getAllByRole("option");
+  userEvent.click(firstOption);
+
+  await waitFor(() => expect(input.value).toBe("p2"));
+});
+
+it("should clear auto complete choices on Reset button click", async () => {
+  render(<Test choices={["p1", "p2", "p3"]} />);
+
+  const input = screen.getByDisplayValue("") as HTMLInputElement;
+
+  userEvent.type(input, "2");
+  await waitFor(() => expect(input.value).toBe("2"));
+
+  expect(screen.getAllByRole("option")).toHaveLength(1);
+  userEvent.click(screen.getByText("Reset"));
+  await waitFor(() => expect(screen.queryAllByRole("option")).toHaveLength(0));
 });
