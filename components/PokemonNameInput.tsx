@@ -6,7 +6,7 @@
  */
 
 import clsx from "clsx";
-import { Fragment, useMemo, useRef, useState, useId } from "react";
+import { useMemo, useRef, useState, useId } from "react";
 
 export type PokemonNameInputProps = {
   guessEnabled: boolean;
@@ -59,7 +59,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
   }
 
   return (
-    <Fragment>
+    <div>
       <label htmlFor={inputId} className="block">
         Enter your guess below
       </label>
@@ -146,7 +146,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
         and enter to select. Touch device users, explore by touch or with swipe
         gestures. Only the top 10 relevant results are available at a time.
       </span>
-    </Fragment>
+    </div>
   );
 };
 

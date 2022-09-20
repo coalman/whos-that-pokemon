@@ -50,32 +50,30 @@ const Home: NextPage<{
             }
             revealed={reveal}
           />
-          <div>
-            <PokemonNameInput
-              guessEnabled={!reveal}
-              pokemonList={props.pokemonList}
-              value={guess}
-              onChange={setGuess}
-              onGuess={(pokemonName) => {
-                setReveal(true);
-                setGuess(pokemonName);
+          <PokemonNameInput
+            guessEnabled={!reveal}
+            pokemonList={props.pokemonList}
+            value={guess}
+            onChange={setGuess}
+            onGuess={(pokemonName) => {
+              setReveal(true);
+              setGuess(pokemonName);
 
-                setTimeout(() => {
-                  setReveal(false);
-                  setGuess("");
-                  setPokemonIndex(getRandomInteger(props.pokemonList.length));
-                }, 3_000);
-              }}
-            />
-            {reveal && (
-              <div className="py-2 text-center">
-                {pokemonName === guess ? "Correct" : "Incorrect"}
-                {"! It's "}
-                <span className="capitalize">{pokemonName ?? ""}</span>
-                {"!"}
-              </div>
-            )}
-          </div>
+              setTimeout(() => {
+                setReveal(false);
+                setGuess("");
+                setPokemonIndex(getRandomInteger(props.pokemonList.length));
+              }, 3_000);
+            }}
+          />
+          {reveal && (
+            <div className="py-2 text-center">
+              {pokemonName === guess ? "Correct" : "Incorrect"}
+              {"! It's "}
+              <span className="capitalize">{pokemonName ?? ""}</span>
+              {"!"}
+            </div>
+          )}
         </div>
       </main>
     </div>
