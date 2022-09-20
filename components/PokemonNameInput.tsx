@@ -6,7 +6,7 @@
  */
 
 import clsx from "clsx";
-import { Fragment, useMemo, useRef, useState } from "react";
+import { Fragment, useMemo, useRef, useState, useId } from "react";
 
 export type PokemonNameInputProps = {
   guessEnabled: boolean;
@@ -50,9 +50,10 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
     }
   }
 
-  const listboxId = "my-listbox"; // TODO: unique id?
-  const descriptionId = "my-description"; // TODO: unique id?
-  const optionId = (index: number) => `my-option-${index}`;
+  const listboxId = useId();
+  const descriptionId = useId();
+  const optionIdPrefix = useId();
+  const optionId = (index: number) => `${optionIdPrefix}-${index}`;
 
   return (
     <Fragment>
