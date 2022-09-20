@@ -41,15 +41,6 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
     undefined
   );
 
-  // derived state: reset selectedChoice when choices array changes
-  {
-    const [prevChoices, setPrevChoices] = useState<typeof choices>(choices);
-    if (prevChoices !== choices) {
-      setPrevChoices(choices);
-      setSelectedChoice(undefined);
-    }
-  }
-
   const inputId = useId();
   const listboxId = useId();
   const descriptionId = useId();
@@ -67,6 +58,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
     }
 
     setShowChoices(false);
+    setSelectedChoice(undefined);
     onGuess(value);
   }
 
@@ -94,6 +86,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
         value={props.value}
         onChange={(event) => {
           setShowChoices(true);
+          setSelectedChoice(undefined);
           onChange(event.currentTarget.value);
         }}
         onKeyDown={(event) => {
