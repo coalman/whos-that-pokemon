@@ -57,7 +57,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
   return (
     <Fragment>
       <label>
-        <span className="block">Guess the Pokemon</span>
+        <span className="block">Enter your guess below</span>
         <input
           ref={refInput}
           className="bg-slate-900 border border-slate-50 py-2 rounded-lg outline-none text-center [width:500px]"
