@@ -40,10 +40,9 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
   );
 
   const inputId = useId();
-  const listboxId = useId();
-  const descriptionId = useId();
-  const optionIdPrefix = useId();
-  const optionId = (index: number) => `${optionIdPrefix}-${index}`;
+  const listboxId = `${inputId}-listbox`;
+  const descriptionId = `${inputId}-description`;
+  const optionId = (index: number) => `${inputId}-option${index}`;
 
   function tryGuess(value: string) {
     if (!props.guessEnabled) {
