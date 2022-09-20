@@ -50,6 +50,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
     }
   }
 
+  const inputId = useId();
   const listboxId = useId();
   const descriptionId = useId();
   const optionIdPrefix = useId();
@@ -71,60 +72,61 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
 
   return (
     <Fragment>
-      <label>
-        <span className="block">Enter your guess below</span>
-        <input
-          ref={refInput}
-          className="bg-slate-900 border border-slate-50 py-2 rounded-lg outline-none text-center [width:500px]"
-          type="text"
-          role="combobox"
-          aria-owns={listboxId}
-          aria-expanded={choices.length > 0}
-          aria-describedby={descriptionId}
-          aria-autocomplete="list"
-          aria-activedescendant={
-            selectedChoice !== undefined ? optionId(selectedChoice) : undefined
-          }
-          autoComplete="off"
-          autoCapitalize="off"
-          readOnly={!props.guessEnabled}
-          value={props.value}
-          onChange={(event) => {
-            setShowChoices(true);
-            onChange(event.currentTarget.value);
-          }}
-          onKeyDown={(event) => {
-            let preventDefault = true;
-            if (event.key === "Enter") {
-              let value = event.currentTarget.value;
-              if (selectedChoice !== undefined) {
-                value = choices[selectedChoice];
-              }
-              tryGuess(value);
-            } else if (event.key === "ArrowDown") {
-              setSelectedChoice((choice) => {
-                if (choices.length === 0) {
-                  return undefined;
-                } else if (choice === undefined) {
-                  return 0;
-                } else {
-                  return Math.min(choice + 1, choices.length - 1);
-                }
-              });
-            } else if (event.key === "ArrowUp") {
-              setSelectedChoice((choice) =>
-                choice === undefined || choice === 0 ? undefined : choice - 1
-              );
-            } else {
-              preventDefault = false;
-            }
-
-            if (preventDefault) {
-              event.preventDefault();
-            }
-          }}
-        />
+      <label htmlFor={inputId} className="block">
+        Enter your guess below
       </label>
+      <input
+        ref={refInput}
+        id={inputId}
+        className="bg-slate-900 border border-slate-50 py-2 rounded-lg outline-none text-center [width:500px]"
+        type="text"
+        role="combobox"
+        aria-owns={listboxId}
+        aria-expanded={choices.length > 0}
+        aria-describedby={descriptionId}
+        aria-autocomplete="list"
+        aria-activedescendant={
+          selectedChoice !== undefined ? optionId(selectedChoice) : undefined
+        }
+        autoComplete="off"
+        autoCapitalize="off"
+        readOnly={!props.guessEnabled}
+        value={props.value}
+        onChange={(event) => {
+          setShowChoices(true);
+          onChange(event.currentTarget.value);
+        }}
+        onKeyDown={(event) => {
+          let preventDefault = true;
+          if (event.key === "Enter") {
+            let value = event.currentTarget.value;
+            if (selectedChoice !== undefined) {
+              value = choices[selectedChoice];
+            }
+            tryGuess(value);
+          } else if (event.key === "ArrowDown") {
+            setSelectedChoice((choice) => {
+              if (choices.length === 0) {
+                return undefined;
+              } else if (choice === undefined) {
+                return 0;
+              } else {
+                return Math.min(choice + 1, choices.length - 1);
+              }
+            });
+          } else if (event.key === "ArrowUp") {
+            setSelectedChoice((choice) =>
+              choice === undefined || choice === 0 ? undefined : choice - 1
+            );
+          } else {
+            preventDefault = false;
+          }
+
+          if (preventDefault) {
+            event.preventDefault();
+          }
+        }}
+      />
       <ul role="listbox" id={listboxId}>
         {showChoices &&
           choices.map((pokemonName, index) => (
