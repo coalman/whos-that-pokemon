@@ -22,5 +22,7 @@ jobs:
         run: npx prettier --check .
       - name: Lint
         run: npm run lint
+      - name: Test
+        run: npm test
       - name: Build app
         run: npm run build
