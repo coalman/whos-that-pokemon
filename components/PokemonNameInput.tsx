@@ -55,6 +55,20 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
   const optionIdPrefix = useId();
   const optionId = (index: number) => `${optionIdPrefix}-${index}`;
 
+  function tryGuess(value: string) {
+    if (!props.guessEnabled) {
+      return;
+    }
+    // check if it's a valid guess
+    // TODO: show some feedback for invalid name or empty string.
+    if (!props.pokemonList.includes(value)) {
+      return;
+    }
+
+    setShowChoices(false);
+    onGuess(value);
+  }
+
   return (
     <Fragment>
       <label>
@@ -82,21 +96,21 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
           onKeyDown={(event) => {
             let preventDefault = true;
             if (event.key === "Enter") {
-              if (props.guessEnabled) {
-                setShowChoices(false);
-
-                let value = event.currentTarget.value;
-                if (selectedChoice !== undefined) {
-                  value = choices[selectedChoice];
-                }
-                onGuess(value);
+              let value = event.currentTarget.value;
+              if (selectedChoice !== undefined) {
+                value = choices[selectedChoice];
               }
+              tryGuess(value);
             } else if (event.key === "ArrowDown") {
-              setSelectedChoice((choice) =>
-                choice !== undefined
-                  ? Math.min(choice + 1, choices.length - 1)
-                  : 0
-              );
+              setSelectedChoice((choice) => {
+                if (choices.length === 0) {
+                  return undefined;
+                } else if (choice === undefined) {
+                  return 0;
+                } else {
+                  return Math.min(choice + 1, choices.length - 1);
+                }
+              });
             } else if (event.key === "ArrowUp") {
               setSelectedChoice((choice) =>
                 choice === undefined || choice === 0 ? undefined : choice - 1
@@ -129,8 +143,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
               aria-selected={index === selectedChoice}
               tabIndex={-1}
               onClick={() => {
-                setShowChoices(false);
-                onGuess(pokemonName);
+                tryGuess(pokemonName);
                 refInput.current?.focus();
               }}
             >
