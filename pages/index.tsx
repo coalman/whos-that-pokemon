@@ -60,6 +60,17 @@ const Home: NextPage<{
                 setReveal(true);
                 setGuess(pokemonName);
 
+                {
+                  const guessedPokemon = props.pokemonList.indexOf(
+                    pokemonName
+                  ) as number;
+
+                  postGuess({
+                    actualPokemon: pokemonIndex as number,
+                    guessedPokemon,
+                  });
+                }
+
                 setTimeout(() => {
                   setReveal(false);
                   setGuess("");
@@ -98,4 +109,18 @@ export const getStaticProps: GetStaticProps = async () => {
  */
 function getRandomInteger(max: number): number {
   return Math.floor(Math.random() * max);
+}
+
+async function postGuess(guess: {
+  actualPokemon: number;
+  guessedPokemon: number;
+}) {
+  const response = await fetch("/api/guess", {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify(guess),
+  });
 }
