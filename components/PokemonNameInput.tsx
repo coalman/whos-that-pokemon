@@ -78,6 +78,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
         }
         autoComplete="off"
         autoCapitalize="off"
+        autoCorrect="off"
         readOnly={!props.guessEnabled}
         value={props.value}
         onChange={(event) => {
