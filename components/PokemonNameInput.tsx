@@ -6,7 +6,7 @@
  */
 
 import clsx from "clsx";
-import { useMemo, useRef, useState, useId } from "react";
+import { useMemo, useRef, useState, useId, useEffect } from "react";
 
 export type PokemonNameInputProps = {
   guessEnabled: boolean;
@@ -20,6 +20,11 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
   const { onGuess, onChange } = props;
 
   const refInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // auto focus on mount
+    refInput.current?.focus();
+  }, []);
 
   const choices: readonly string[] = useMemo(() => {
     if (props.value.trim() === "") {
