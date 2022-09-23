@@ -59,16 +59,12 @@ const Home: NextPage<{
                 setReveal(true);
                 setGuess(pokemonName);
 
-                {
-                  const guessedPokemon = props.pokemonList.indexOf(
+                postGuess({
+                  actualPokemon: pokemonIndex as number,
+                  guessedPokemon: props.pokemonList.indexOf(
                     pokemonName
-                  ) as number;
-
-                  postGuess({
-                    actualPokemon: pokemonIndex as number,
-                    guessedPokemon,
-                  });
-                }
+                  ) as number,
+                });
 
                 setTimeout(() => {
                   setReveal(false);
@@ -115,11 +111,17 @@ async function postGuess(guess: {
   guessedPokemon: number;
 }) {
   const response = await fetch("/api/guess", {
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     method: "POST",
     body: JSON.stringify(guess),
   });
+
+  if (!response.ok) {
+    // It's not really important to the user if we saved this data or not,
+    // just log this error for developers to debug.
+    // TODO: maybe save to external logging if possible
+    console.error(
+      `Failed to save guess: ${response.status} (${response.statusText})`
+    );
+  }
 }
