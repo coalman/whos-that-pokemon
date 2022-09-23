@@ -2,7 +2,6 @@ import type { NextPage, GetServerSideProps } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { PokemonClient } from "pokenode-ts";
-import type { Data as Results } from "pages/api/results";
 import prisma from "lib/db";
 
 const Results: NextPage<{
