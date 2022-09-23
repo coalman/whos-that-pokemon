@@ -14,7 +14,7 @@ const PokemonImageQuestion = (props: PokemonImageQuestionProps) => {
     <div
       className={clsx(
         props.className,
-        "relative inline-flex justify-center items-center"
+        "relative inline-flex justify-center items-center bg-slate-50 rounded-3xl"
       )}
       style={props.style}
     >
@@ -47,7 +47,7 @@ const Silhouette = (props: { className?: string; imgSrc: string }) => {
     <div
       className={clsx(
         props.className,
-        "bg-slate-300 w-full h-full",
+        "bg-slate-900 w-full h-full",
         // NOTE: most mask-* properties need webkit prefixes (chrome/edge atm), so we use tailwind here instead of inline styles.
         "[mask-image:var(--url)] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center]"
       )}
