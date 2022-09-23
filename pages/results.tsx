@@ -2,13 +2,13 @@ import type { NextPage, GetStaticProps } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { PokemonClient } from "pokenode-ts";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Data as Results } from "pages/api/results";
 
 const Results: NextPage<{
   pokemonList: readonly string[];
 }> = (props) => {
-  const [data, setData] = useState<Results | undefined>(undefined);
+  const [results, setResults] = useState<Results | undefined>(undefined);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -23,7 +23,7 @@ const Results: NextPage<{
       const data = await response.json();
 
       if (!abortController.signal.aborted) {
-        setData(data as Results);
+        setResults(data as Results);
       }
     })();
 
@@ -32,58 +32,51 @@ const Results: NextPage<{
     };
   }, []);
 
-  const results = useMemo(() => {
-    if (data === undefined) return undefined;
-
-    const resultMap = new Map<
-      number,
-      { id: number; correct: number; total: number }
-    >();
-
-    for (let row of data) {
-      let result = resultMap.get(row.actualPokemon);
-      if (result === undefined) {
-        result = { id: row.actualPokemon, correct: 0, total: 0 };
-        resultMap.set(row.actualPokemon, result);
-      }
-
-      result.total += row._count;
-      if (row.actualPokemon === row.guessedPokemon) {
-        result.correct += row._count;
-      }
-    }
-
-    return [...resultMap.values()].sort(
-      (b, a) => a.correct / a.total - b.correct / b.total
-    );
-  }, [data]);
-
   return (
     <div className="flex justify-center">
       <Head>
         <title>{"Who's that Pokemon?"}</title>
       </Head>
 
-      <main className="flex flex-col gap-8 w-1/2">
-        <div className="text-center pt-8">
-          <h1 className="text-2xl">Results</h1>
-        </div>
-        <ol className="flex flex-col gap-2">
-          {results?.map(({ id, correct, total }, rank) => (
-            <li key={id} className="inline-flex items-center justify-between">
-              <div className="inline-flex items-center gap-2">
-                <span>{rank + 1}</span>
-                <Image
-                  src={getPokemonThumbnailSrc(id + 1)}
-                  width={96}
-                  height={96}
-                />
-                <span className="capitalize">{props.pokemonList[id]}</span>
-              </div>
-              <span>{percentFormatter.format(correct / total)}</span>
-            </li>
-          ))}
-        </ol>
+      <main className="flex flex-col items-center gap-8 px-8">
+        <table
+          className="table-fixed w-full [max-width:600px] [min-width:400px]"
+          summary="Pokemon ordered by most accurately guessed pokemon."
+        >
+          <caption className="text-2xl py-8">Results</caption>
+          <thead className="border-b border-slate-50">
+            <tr>
+              <th className="text-right [width:40px]">Rank</th>
+              <th>Pokemon</th>
+              <th className="text-right [width:70px]">Accuracy</th>
+              <th className="text-right [width:70px]">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results?.map(({ id, correct, total }, rank) => (
+              <tr key={id}>
+                <td className="text-right">{rank + 1}.</td>
+                <td className="flex items-center">
+                  <Image
+                    src={getPokemonThumbnailSrc(id + 1)}
+                    width={96}
+                    height={96}
+                    alt={props.pokemonList[id]}
+                  />
+                  <span className="capitalize pl-2">
+                    {props.pokemonList[id]}
+                  </span>
+                </td>
+                <td className="font-mono text-right">
+                  {percentFormatter.format(correct / total)}
+                </td>
+                <td className="font-mono text-right" title={String(total)}>
+                  {shortFormatter.format(total)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </main>
     </div>
   );
@@ -99,6 +92,9 @@ export const getStaticProps: GetStaticProps = async () => {
 };
 
 const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent" });
+const shortFormatter = new Intl.NumberFormat(undefined, {
+  notation: "compact",
+});
 
 const getPokemonThumbnailSrc = (index: number) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index}.png`;
