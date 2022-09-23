@@ -31,10 +31,11 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
       return [];
     }
 
-    // TODO: better comparison/ranking
     return (
       props.pokemonList
         .filter((pokemonName) => pokemonName.includes(props.value))
+        // prefer matches near the start of the name
+        .sort((a, b) => a.indexOf(props.value) - b.indexOf(props.value))
         // limit the number of results.
         .slice(0, 5)
     );
