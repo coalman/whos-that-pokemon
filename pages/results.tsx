@@ -1,37 +1,14 @@
-import type { NextPage, GetStaticProps } from "next";
+import type { NextPage, GetServerSideProps } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { PokemonClient } from "pokenode-ts";
-import { useEffect, useState } from "react";
 import type { Data as Results } from "pages/api/results";
+import prisma from "lib/db";
 
 const Results: NextPage<{
   pokemonList: readonly string[];
+  results: ReturnType<typeof sumGuessData>;
 }> = (props) => {
-  const [results, setResults] = useState<Results | undefined>(undefined);
-
-  useEffect(() => {
-    const abortController = new AbortController();
-
-    (async function fetchData() {
-      const response = await fetch("/api/results", {
-        headers: { Accept: "application/json" },
-        method: "GET",
-        signal: abortController.signal,
-      });
-
-      const data = await response.json();
-
-      if (!abortController.signal.aborted) {
-        setResults(data as Results);
-      }
-    })();
-
-    return () => {
-      abortController.abort();
-    };
-  }, []);
-
   return (
     <div className="flex justify-center">
       <Head>
@@ -53,7 +30,7 @@ const Results: NextPage<{
             </tr>
           </thead>
           <tbody>
-            {results?.map(({ id, correct, total }, rank) => (
+            {props.results.map(({ id, correct, total }, rank) => (
               <tr key={id}>
                 <td className="text-right">{rank + 1}.</td>
                 <td className="flex items-center">
@@ -84,11 +61,22 @@ const Results: NextPage<{
 
 export default Results;
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const pokeApi = new PokemonClient();
-  const pokemonList = await pokeApi.listPokemons(0, 151);
 
-  return { props: { pokemonList: pokemonList.results.map((r) => r.name) } };
+  const [pokemonList, data] = await Promise.all([
+    pokeApi.listPokemons(0, 151),
+    getGuessData(),
+  ]);
+
+  const results = sumGuessData(data);
+
+  return {
+    props: {
+      results,
+      pokemonList: pokemonList.results.map(({ name }) => name),
+    },
+  };
 };
 
 const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent" });
@@ -98,3 +86,43 @@ const shortFormatter = new Intl.NumberFormat(undefined, {
 
 const getPokemonThumbnailSrc = (index: number) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index}.png`;
+
+const getGuessData = () =>
+  prisma.guess.groupBy({
+    by: ["actualPokemon", "guessedPokemon"],
+    orderBy: {
+      actualPokemon: "asc",
+    },
+    _count: true,
+  });
+
+export type GuessData = Awaited<ReturnType<typeof getGuessData>>;
+
+export function sumGuessData(data: GuessData) {
+  const resultMap = new Map<
+    number,
+    {
+      id: number;
+      correct: number;
+      total: number;
+    }
+  >();
+
+  for (let row of data) {
+    const id = row.actualPokemon;
+    let result = resultMap.get(id);
+    if (result === undefined) {
+      result = { id, correct: 0, total: 0 };
+      resultMap.set(id, result);
+    }
+
+    result.total += row._count;
+    if (row.actualPokemon === row.guessedPokemon) {
+      result.correct += row._count;
+    }
+  }
+
+  return [...resultMap.values()].sort(
+    (b, a) => a.correct / a.total - b.correct / b.total
+  );
+}
