@@ -1,9 +1,11 @@
 import type { NextPage, GetStaticProps } from "next";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PokemonClient } from "pokenode-ts";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
 import PokemonNameInput from "components/PokemonNameInput";
+import StreakCounter from "components/StreakCounter";
+import useRandomIndex from "lib/useRandomIndex";
 
 const getPokemonImgSrc = (index: number) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${index}.png`;
@@ -11,18 +13,16 @@ const getPokemonImgSrc = (index: number) =>
 const Home: NextPage<{
   pokemonList: readonly string[];
 }> = (props) => {
+  const [guess, setGuess] = useState("");
   const [reveal, setReveal] = useState(false);
 
-  const [pokemonIndex, setPokemonIndex] = useState<number | undefined>(
-    undefined
-  );
-  useEffect(() => {
-    if (pokemonIndex === undefined) {
-      setPokemonIndex(getRandomInteger(props.pokemonList.length));
-    }
-  }, [pokemonIndex, props.pokemonList.length]);
+  const {
+    index: pokemonIndex,
+    nextRandomIndex: nextPokemon,
+    markSplit: markStreakSplit,
+  } = useRandomIndex(props.pokemonList.length);
 
-  const [guess, setGuess] = useState("");
+  const [streakCount, setStreak] = useState(0);
 
   const pokemonName =
     pokemonIndex !== undefined ? props.pokemonList[pokemonIndex] : undefined;
@@ -50,26 +50,37 @@ const Home: NextPage<{
             revealed={reveal}
           />
           <div>
+            <StreakCounter
+              value={streakCount}
+              maxValue={props.pokemonList.length}
+            />
             <PokemonNameInput
               guessEnabled={!reveal}
               pokemonList={props.pokemonList}
               value={guess}
               onChange={setGuess}
-              onGuess={(pokemonName) => {
+              onGuess={(guess) => {
                 setReveal(true);
-                setGuess(pokemonName);
+                setGuess(guess);
+
+                if (pokemonName === guess) {
+                  setStreak((v) =>
+                    v === props.pokemonList.length ? 0 : v + 1
+                  );
+                } else {
+                  setStreak(0);
+                  markStreakSplit();
+                }
 
                 postGuess({
                   actualPokemon: pokemonIndex as number,
-                  guessedPokemon: props.pokemonList.indexOf(
-                    pokemonName
-                  ) as number,
+                  guessedPokemon: props.pokemonList.indexOf(guess) as number,
                 });
 
                 setTimeout(() => {
                   setReveal(false);
                   setGuess("");
-                  setPokemonIndex(getRandomInteger(props.pokemonList.length));
+                  nextPokemon(props.pokemonList.length);
                 }, 3_000);
               }}
             />
@@ -96,15 +107,6 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return { props: { pokemonList: pokemonList.results.map((r) => r.name) } };
 };
-
-/**
- * Get random integer.
- *
- * @param max: exclusive maximum integer.
- */
-function getRandomInteger(max: number): number {
-  return Math.floor(Math.random() * max);
-}
 
 async function postGuess(guess: {
   actualPokemon: number;
