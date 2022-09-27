@@ -10,6 +10,7 @@ const PokeballIcon = (props: { type: PokeballType }) => {
   return (
     <Image
       src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${item}.png`}
+      layout="fixed"
       width={30}
       height={30}
     />

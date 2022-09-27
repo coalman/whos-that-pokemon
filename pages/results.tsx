@@ -40,6 +40,7 @@ const Results: NextPage<{
                 <td className="flex items-center">
                   <Image
                     src={getPokemonThumbnailSrc(id + 1)}
+                    layout="fixed"
                     width={96}
                     height={96}
                     alt={props.pokemonList[id]}

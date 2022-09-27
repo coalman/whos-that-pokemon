@@ -42,6 +42,7 @@ const Home: NextPage<{
             <span>{"Who's that"}</span>
             <Image
               src="/pokemon-logo-small.png"
+              layout="fixed"
               width={100}
               height={37}
               alt="Pokemon logo that says pokemon"
