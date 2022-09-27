@@ -33,6 +33,9 @@ const PokemonImageQuestion = (props: PokemonImageQuestionProps) => {
             objectFit="contain"
             objectPosition="center"
             alt="Pokemon to guess."
+            onDragStart={(event) => {
+              event.preventDefault();
+            }}
           />
         </Fragment>
       )}
