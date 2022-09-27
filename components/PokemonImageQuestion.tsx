@@ -20,10 +20,13 @@ const PokemonImageQuestion = (props: PokemonImageQuestionProps) => {
     >
       {props.imgSrc !== undefined && (
         <Fragment>
+          <Silhouette className="absolute" imgSrc={props.imgSrc} />
           <Image
             className={clsx(
               "absolute",
-              props.revealed ? "visible" : "invisible"
+              props.revealed
+                ? "opacity-100 transition-opacity duration-1000"
+                : "opacity-0"
             )}
             src={props.imgSrc}
             layout="fill"
@@ -31,9 +34,6 @@ const PokemonImageQuestion = (props: PokemonImageQuestionProps) => {
             objectPosition="center"
             alt="Pokemon to guess."
           />
-          {!props.revealed && (
-            <Silhouette className="absolute" imgSrc={props.imgSrc} />
-          )}
         </Fragment>
       )}
     </div>
