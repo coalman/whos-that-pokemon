@@ -33,6 +33,7 @@ const Home: NextPage<{
       <Head>
         <title>{"Who's that Pokemon?"}</title>
         <link rel="icon" href="/poke-ball.png" />
+        <meta name="description" content="Pokemon guessing game." />
       </Head>
 
       <main className="flex flex-col items-center gap-8">
