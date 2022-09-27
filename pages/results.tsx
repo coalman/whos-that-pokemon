@@ -122,7 +122,17 @@ export function sumGuessData(data: GuessData) {
     }
   }
 
-  return [...resultMap.values()].sort(
-    (b, a) => a.correct / a.total - b.correct / b.total
-  );
+  return [...resultMap.values()].sort((b, a) => {
+    const aCorrectPercent = a.correct / a.total;
+    const bCorrectPercent = b.correct / b.total;
+    const percentDiff = aCorrectPercent - bCorrectPercent;
+
+    if (percentDiff !== 0) {
+      return percentDiff;
+    }
+
+    // if they both have the same accuracy, order them on the number of responses
+    // descending when above 50%, ascending when 50% or below
+    return (aCorrectPercent > 0.5 ? 1 : -1) * a.total - b.total;
+  });
 }
