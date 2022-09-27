@@ -1,5 +1,6 @@
 import type { NextPage, GetStaticProps } from "next";
 import Head from "next/head";
+import Image from "next/image";
 import { useState } from "react";
 import { PokemonClient } from "pokenode-ts";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
@@ -36,7 +37,11 @@ const Home: NextPage<{
 
       <main className="flex flex-col items-center gap-8">
         <div className="text-center pt-8">
-          <h1 className="text-2xl">{"Who's that Pokemon?"}</h1>
+          <h1 className="text-2xl inline-flex items-center">
+            <span>{"Who's that"}</span>
+            <Image src="/pokemon-logo-small.png" width={100} height={37} />
+            <span>?</span>
+          </h1>
         </div>
 
         <div className="inline-flex gap-8 flex-col items-center lg:flex-row lg:justify-center lg:items-start">
