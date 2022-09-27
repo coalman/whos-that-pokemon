@@ -39,7 +39,12 @@ const Home: NextPage<{
         <div className="text-center pt-8">
           <h1 className="text-2xl inline-flex items-center">
             <span>{"Who's that"}</span>
-            <Image src="/pokemon-logo-small.png" width={100} height={37} />
+            <Image
+              src="/pokemon-logo-small.png"
+              width={100}
+              height={37}
+              alt="Pokemon logo that says pokemon"
+            />
             <span>?</span>
           </h1>
         </div>
