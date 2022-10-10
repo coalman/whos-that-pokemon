@@ -21,6 +21,13 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
 
   const refInput = useRef<HTMLInputElement>(null);
 
+  type InputError = {
+    state: "true" | "false" | "spelling";
+    message?: string;
+  };
+
+  const [error, setError] = useState<InputError>({ state: "false" });
+
   useEffect(() => {
     // auto focus on mount
     refInput.current?.focus();
@@ -48,6 +55,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
   const inputId = useId();
   const listboxId = `${inputId}-listbox`;
   const descriptionId = `${inputId}-description`;
+  const errorId = `${inputId}-error`;
   const optionId = (index: number) => `${inputId}-option${index}`;
 
   function tryGuess(value: string) {
@@ -77,7 +85,8 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
         role="combobox"
         aria-owns={listboxId}
         aria-expanded={choices.length > 0}
-        aria-describedby={descriptionId}
+        aria-describedby={errorId + " " + descriptionId}
+        aria-invalid={error.state}
         aria-autocomplete="list"
         aria-activedescendant={
           selectedChoice !== undefined ? optionId(selectedChoice) : undefined
@@ -87,9 +96,14 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
         autoCorrect="off"
         readOnly={!props.guessEnabled}
         value={props.value}
-        onChange={(event) => {
+        onInput={(event) => {
+          const value = event.currentTarget.value;
+
+          setError((prev) =>
+            prev.state !== "false" ? { state: "false" } : prev
+          );
           setSelectedChoice(undefined);
-          onChange(event.currentTarget.value);
+          onChange(value);
         }}
         onKeyDown={(event) => {
           let preventDefault = true;
@@ -97,7 +111,19 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
             let value = event.currentTarget.value;
             if (selectedChoice !== undefined) {
               value = choices[selectedChoice];
+              setError({ state: "false" });
+            } else if (value.trim() === "") {
+              setError({
+                state: "true",
+                message: "Entering a pokemon name is required.",
+              });
+            } else if (!props.pokemonList.includes(value)) {
+              setError({
+                state: "spelling",
+                message: "Invalid pokemon name entered.",
+              });
             }
+
             tryGuess(value);
           } else if (event.key === "ArrowDown") {
             setSelectedChoice((choice) => {
@@ -122,6 +148,9 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
           }
         }}
       />
+      <div id={errorId} className="text-red-500">
+        {error.message}
+      </div>
       <ul role="listbox" id={listboxId}>
         {props.guessEnabled &&
           choices.map((pokemonName, index) => (
