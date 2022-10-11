@@ -14,10 +14,11 @@ export type PokemonNameInputProps = {
   value: string;
   onChange: (value: string) => void;
   onGuess: (pokemonName: string) => void;
+  onNextQuestion: () => void;
 };
 
 const PokemonNameInput = (props: PokemonNameInputProps) => {
-  const { onGuess, onChange } = props;
+  const { onGuess, onChange, onNextQuestion } = props;
 
   const refInput = useRef<HTMLInputElement>(null);
 
@@ -108,23 +109,27 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
         onKeyDown={(event) => {
           let preventDefault = true;
           if (event.key === "Enter") {
-            let value = event.currentTarget.value;
-            if (selectedChoice !== undefined) {
-              value = choices[selectedChoice];
-              setError({ state: "false" });
-            } else if (value.trim() === "") {
-              setError({
-                state: "true",
-                message: "Entering a pokemon name is required.",
-              });
-            } else if (!props.pokemonList.includes(value)) {
-              setError({
-                state: "spelling",
-                message: "Invalid pokemon name entered.",
-              });
-            }
+            if (!props.guessEnabled) {
+              onNextQuestion();
+            } else {
+              let value = event.currentTarget.value;
+              if (selectedChoice !== undefined) {
+                value = choices[selectedChoice];
+                setError({ state: "false" });
+              } else if (value.trim() === "") {
+                setError({
+                  state: "true",
+                  message: "Entering a pokemon name is required.",
+                });
+              } else if (!props.pokemonList.includes(value)) {
+                setError({
+                  state: "spelling",
+                  message: "Invalid pokemon name entered.",
+                });
+              }
 
-            tryGuess(value);
+              tryGuess(value);
+            }
           } else if (event.key === "ArrowDown") {
             setSelectedChoice((choice) => {
               if (choices.length === 0) {
