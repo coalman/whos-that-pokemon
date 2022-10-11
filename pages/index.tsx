@@ -28,6 +28,12 @@ const Home: NextPage<{
   const pokemonName =
     pokemonIndex !== undefined ? props.pokemonList[pokemonIndex] : undefined;
 
+  const nextQuestion = () => {
+    setReveal(false);
+    setGuess("");
+    nextPokemon(props.pokemonList.length);
+  };
+
   return (
     <div>
       <Head>
@@ -88,20 +94,23 @@ const Home: NextPage<{
                   actualPokemon: pokemonIndex as number,
                   guessedPokemon: props.pokemonList.indexOf(guess) as number,
                 });
-
-                setTimeout(() => {
-                  setReveal(false);
-                  setGuess("");
-                  nextPokemon(props.pokemonList.length);
-                }, 3_000);
               }}
+              onNextQuestion={nextQuestion}
             />
             {reveal && (
-              <div className="py-2 text-center">
+              <div className="py-2 text-center relative">
                 {pokemonName === guess ? "Correct" : "Incorrect"}
                 {"! It's "}
                 <span className="capitalize">{pokemonName ?? ""}</span>
-                {"!"}
+                {"! Press "}
+                <span className="italic">Enter</span>
+                {" to "}
+                <button
+                  className="px-2 rounded-sm border border-slate-600 hover:border-slate-50"
+                  onClick={nextQuestion}
+                >
+                  Continue!
+                </button>
               </div>
             )}
           </div>
