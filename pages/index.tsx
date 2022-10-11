@@ -1,7 +1,7 @@
 import type { NextPage, GetStaticProps } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PokemonClient } from "pokenode-ts";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
 import PokemonNameInput from "components/PokemonNameInput";
@@ -30,6 +30,14 @@ const Home: NextPage<{
     setGuess("");
     nextRandomPokemon(streak);
   };
+
+  const refDialog = useRef<HTMLDialogElement>(null);
+  const refDialogBtn = useRef<HTMLButtonElement>(null);
+
+  let currentStreakCount = streakCount;
+  if (reveal && pokemonName === guess) {
+    currentStreakCount += 1;
+  }
 
   return (
     <div>
@@ -66,7 +74,7 @@ const Home: NextPage<{
           />
           <div>
             <StreakCounter
-              value={streakCount}
+              value={currentStreakCount}
               maxValue={props.pokemonList.length}
             />
             <PokemonNameInput
@@ -77,6 +85,15 @@ const Home: NextPage<{
               onGuess={(guess) => {
                 setReveal(true);
                 setGuess(guess);
+
+                if (
+                  guess === pokemonName &&
+                  streakCount + 1 === props.pokemonList.length &&
+                  refDialog.current
+                ) {
+                  refDialog.current.showModal();
+                  refDialogBtn.current?.focus();
+                }
 
                 postGuess({
                   actualPokemon: pokemonIndex as number,
@@ -94,6 +111,7 @@ const Home: NextPage<{
                 <span className="italic">Enter</span>
                 {" to "}
                 <button
+                  type="button"
                   className="px-2 rounded-sm border border-slate-600 hover:border-slate-50"
                   onClick={nextQuestion}
                 >
@@ -103,6 +121,30 @@ const Home: NextPage<{
             )}
           </div>
         </div>
+
+        <dialog
+          ref={refDialog}
+          className="bg-slate-900 text-slate-50 border border-slate-500 px-8 py-6"
+          onClose={nextQuestion}
+          onCancel={nextQuestion}
+        >
+          <div className="flex flex-col gap-4">
+            <h2 className="text-2xl">Congratulations!</h2>
+            <p>
+              You got all {props.pokemonList.length} pokemon correct in a row.
+            </p>
+            <button
+              ref={refDialogBtn}
+              type="button"
+              className="border border-slate-500"
+              onClick={() => {
+                refDialog.current?.close();
+              }}
+            >
+              Reset
+            </button>
+          </div>
+        </dialog>
       </main>
     </div>
   );
@@ -112,9 +154,10 @@ export default Home;
 
 export const getStaticProps: GetStaticProps = async () => {
   const pokeApi = new PokemonClient();
-  const pokemonList = await pokeApi.listPokemons(0, 151);
+  const { results } = await pokeApi.listPokemons(0, 151);
+  const pokemonList = results.map((r) => r.name);
 
-  return { props: { pokemonList: pokemonList.results.map((r) => r.name) } };
+  return { props: { pokemonList } };
 };
 
 async function postGuess(guess: {
