@@ -6,7 +6,7 @@ import { PokemonClient } from "pokenode-ts";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
 import PokemonNameInput from "components/PokemonNameInput";
 import StreakCounter from "components/StreakCounter";
-import useRandomIndex from "lib/useRandomIndex";
+import useRandomPokemon from "lib/useRandomPokemon";
 
 const getPokemonImgSrc = (index: number) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${index}.png`;
@@ -17,21 +17,18 @@ const Home: NextPage<{
   const [guess, setGuess] = useState("");
   const [reveal, setReveal] = useState(false);
 
-  const {
-    index: pokemonIndex,
-    nextRandomIndex: nextPokemon,
-    markSplit: markStreakSplit,
-  } = useRandomIndex(props.pokemonList.length);
-
-  const [streakCount, setStreak] = useState(0);
+  const { pokemonIndex, nextRandomPokemon, streakCount } = useRandomPokemon(
+    props.pokemonList.length
+  );
 
   const pokemonName =
     pokemonIndex !== undefined ? props.pokemonList[pokemonIndex] : undefined;
 
   const nextQuestion = () => {
+    const streak = pokemonName === guess;
     setReveal(false);
     setGuess("");
-    nextPokemon(props.pokemonList.length);
+    nextRandomPokemon(streak);
   };
 
   return (
@@ -80,15 +77,6 @@ const Home: NextPage<{
               onGuess={(guess) => {
                 setReveal(true);
                 setGuess(guess);
-
-                if (pokemonName === guess) {
-                  setStreak((v) =>
-                    v === props.pokemonList.length ? 0 : v + 1
-                  );
-                } else {
-                  setStreak(0);
-                  markStreakSplit();
-                }
 
                 postGuess({
                   actualPokemon: pokemonIndex as number,
