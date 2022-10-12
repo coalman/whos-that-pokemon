@@ -81,9 +81,10 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
       <input
         ref={refInput}
         id={inputId}
-        className="bg-slate-900 border border-slate-50 py-2 rounded-lg outline-none text-center [width:500px]"
+        className="bg-slate-900 border border-slate-50 py-2 rounded-lg outline-none text-center w-full"
         type="text"
         role="combobox"
+        inputMode="text"
         aria-owns={listboxId}
         aria-expanded={choices.length > 0}
         aria-describedby={errorId + " " + descriptionId}
@@ -162,7 +163,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
             <li
               key={index}
               className={clsx(
-                "py-1 capitalize border text-center m-2 cursor-pointer hover:border-slate-50",
+                "py-1 capitalize border text-center m-1 sm:m-2 cursor-pointer hover:border-slate-50",
                 index === selectedChoice
                   ? "border-slate-50"
                   : "border-transparent"

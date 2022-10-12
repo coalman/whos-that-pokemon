@@ -7,6 +7,7 @@ import PokemonImageQuestion from "components/PokemonImageQuestion";
 import PokemonNameInput from "components/PokemonNameInput";
 import StreakCounter from "components/StreakCounter";
 import useRandomPokemon from "lib/useRandomPokemon";
+import clsx from "clsx";
 
 const getPokemonImgSrc = (index: number) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${index}.png`;
@@ -47,24 +48,26 @@ const Home: NextPage<{
         <meta name="description" content="Pokemon guessing game." />
       </Head>
 
-      <main className="flex flex-col items-center gap-8">
-        <div className="text-center pt-8">
-          <h1 className="text-2xl inline-flex items-center">
+      <main className="flex flex-col items-center gap-1">
+        <div
+          className={clsx(
+            "grid w-full gap-1 justify-center justify-items-center px-2",
+            "sm:grid-cols-[repeat(2,_minmax(0,_500px))] sm:grid-rows-[min-content_1fr] sm:gap-4 sm:px-4"
+          )}
+        >
+          <h1 className="pt-1 text-2xl flex justify-center whitespace-nowrap">
             <span>{"Who's that"}</span>
             <Image
               src="/pokemon-logo-small.png"
               layout="fixed"
               width={100}
               height={37}
-              alt="Pokemon logo that says pokemon"
+              alt="Pokemon (logo)"
             />
             <span>?</span>
           </h1>
-        </div>
-
-        <div className="inline-flex gap-8 flex-col items-center lg:flex-row lg:justify-center lg:items-start">
           <PokemonImageQuestion
-            style={{ width: 500, height: 500 }}
+            className="sm:row-start-2"
             imgSrc={
               pokemonIndex !== undefined
                 ? getPokemonImgSrc(pokemonIndex + 1)
@@ -72,11 +75,13 @@ const Home: NextPage<{
             }
             revealed={reveal}
           />
-          <div>
-            <StreakCounter
-              value={currentStreakCount}
-              maxValue={props.pokemonList.length}
-            />
+          <div className="w-full sm:row-start-2">
+            <div>
+              <StreakCounter
+                value={currentStreakCount}
+                maxValue={props.pokemonList.length}
+              />
+            </div>
             <PokemonNameInput
               guessEnabled={!reveal}
               pokemonList={props.pokemonList}

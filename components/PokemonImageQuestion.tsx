@@ -14,9 +14,10 @@ const PokemonImageQuestion = (props: PokemonImageQuestionProps) => {
     <div
       className={clsx(
         props.className,
-        "relative inline-flex justify-center items-center bg-slate-50 rounded-3xl"
+        "relative flex justify-center items-center bg-slate-50 rounded-3xl",
+        "w-full max-w-[300px]",
+        "sm:max-w-[500px]"
       )}
-      style={props.style}
     >
       {props.imgSrc !== undefined && (
         <Fragment>
@@ -29,7 +30,9 @@ const PokemonImageQuestion = (props: PokemonImageQuestionProps) => {
                 : "opacity-0"
             )}
             src={props.imgSrc}
-            layout="fill"
+            layout="intrinsic"
+            width="475px"
+            height="475px"
             objectFit="contain"
             objectPosition="center"
             alt="Pokemon to guess."
