@@ -50,7 +50,7 @@ const Results: NextPage<{
                   </span>
                 </td>
                 <td className="font-mono text-right">
-                  {percentFormatter.format(correct / total)}
+                  {percentFormatter.format(total > 0 ? correct / total : 0)}
                 </td>
                 <td className="font-mono text-right" title={String(total)}>
                   {shortFormatter.format(total)}
@@ -69,19 +69,12 @@ export default Results;
 export const getServerSideProps: GetServerSideProps = async () => {
   const pokeApi = new PokemonClient();
 
-  const [pokemonList, data] = await Promise.all([
-    pokeApi.listPokemons(0, 151),
-    getGuessData(),
+  const [pokemonList, results] = await Promise.all([
+    getPokemonNames(pokeApi, 0, 151),
+    getGuessData().then((data) => sumGuessData(data, 0, 151)),
   ]);
 
-  const results = sumGuessData(data);
-
-  return {
-    props: {
-      results,
-      pokemonList: pokemonList.results.map(({ name }) => name),
-    },
-  };
+  return { props: { results, pokemonList } };
 };
 
 const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent" });
@@ -103,22 +96,33 @@ const getGuessData = () =>
 
 export type GuessData = Awaited<ReturnType<typeof getGuessData>>;
 
-export function sumGuessData(data: GuessData) {
-  const resultMap = new Map<
-    number,
-    {
-      id: number;
-      correct: number;
-      total: number;
-    }
-  >();
+export async function getPokemonNames(
+  api: PokemonClient,
+  start: number,
+  length: number
+): Promise<string[]> {
+  const { results } = await api.listPokemons(start, length);
+  return results.map(({ name }) => name);
+}
+
+export function sumGuessData(
+  data: GuessData,
+  idStart: number,
+  idLength: number
+) {
+  type ResultType = { id: number; correct: number; total: number };
+
+  const resultMap = new Map<number, ResultType>();
+  for (let i = 0; i < idLength; i++) {
+    const id = i + idStart;
+    resultMap.set(id, { id, correct: 0, total: 0 });
+  }
 
   for (let row of data) {
-    const id = row.actualPokemon;
-    let result = resultMap.get(id);
+    let result = resultMap.get(row.actualPokemon);
     if (result === undefined) {
-      result = { id, correct: 0, total: 0 };
-      resultMap.set(id, result);
+      // unrecognized pokemon, skip it
+      continue;
     }
 
     result.total += row._count;
@@ -128,8 +132,8 @@ export function sumGuessData(data: GuessData) {
   }
 
   return [...resultMap.values()].sort((b, a) => {
-    const aCorrectPercent = a.correct / a.total;
-    const bCorrectPercent = b.correct / b.total;
+    const aCorrectPercent = a.total > 0 ? a.correct / a.total : 0;
+    const bCorrectPercent = b.total > 0 ? b.correct / b.total : 0;
     const percentDiff = aCorrectPercent - bCorrectPercent;
 
     if (percentDiff !== 0) {
