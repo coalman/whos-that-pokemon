@@ -3,13 +3,14 @@ import Head from "next/head";
 import Image from "next/image";
 import { PokemonClient } from "pokenode-ts";
 import prisma from "lib/db";
+import Link from "next/link";
 
 const Results: NextPage<{
   pokemonList: readonly string[];
   results: ReturnType<typeof sumGuessData>;
 }> = (props) => {
   return (
-    <div className="flex justify-center">
+    <div className="flex flex-col justify-center">
       <Head>
         <title>{"Who's that Pokemon?"}</title>
         <link rel="icon" href="/poke-ball.png" />
@@ -19,12 +20,20 @@ const Results: NextPage<{
         />
       </Head>
 
+      <header className="flex py-8 items-end justify-center">
+        <h1 className="text-2xl">Results</h1>
+        <div className="relative">
+          <Link href="/">
+            <a className="absolute left-4 bottom-0">(Back)</a>
+          </Link>
+        </div>
+      </header>
+
       <main className="flex flex-col items-center gap-8 px-8">
         <table
           className="table-fixed w-full [max-width:600px] [min-width:400px]"
           summary="Pokemon ordered by most accurately guessed pokemon."
         >
-          <caption className="text-2xl py-8">Results</caption>
           <thead className="border-b border-slate-50">
             <tr>
               <th className="text-right [width:40px]">Rank</th>
