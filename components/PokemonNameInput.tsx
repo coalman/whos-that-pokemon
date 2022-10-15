@@ -63,14 +63,21 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
     if (!props.guessEnabled) {
       return;
     }
-    // check if it's a valid guess
-    // TODO: show some feedback for invalid name or empty string.
-    if (!props.pokemonList.includes(value)) {
-      return;
-    }
 
-    setSelectedChoice(undefined);
-    onGuess(value);
+    if (value.trim() === "") {
+      setError({
+        state: "true",
+        message: "Entering a pokemon name is required.",
+      });
+    } else if (!props.pokemonList.includes(value)) {
+      setError({
+        state: "spelling",
+        message: "Invalid pokemon name entered.",
+      });
+    } else {
+      setSelectedChoice(undefined);
+      onGuess(value);
+    }
   }
 
   return (
@@ -117,16 +124,6 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
               if (selectedChoice !== undefined) {
                 value = choices[selectedChoice];
                 setError({ state: "false" });
-              } else if (value.trim() === "") {
-                setError({
-                  state: "true",
-                  message: "Entering a pokemon name is required.",
-                });
-              } else if (!props.pokemonList.includes(value)) {
-                setError({
-                  state: "spelling",
-                  message: "Invalid pokemon name entered.",
-                });
               }
 
               tryGuess(value);
