@@ -8,6 +8,7 @@ import PokemonNameInput from "components/PokemonNameInput";
 import useRandomPokemon from "lib/useRandomPokemon";
 import clsx from "clsx";
 import { BadgeBar } from "components/BadgeBar";
+import Link from "next/link";
 
 const getPokemonImgSrc = (index: number) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${index}.png`;
@@ -78,7 +79,7 @@ const Home: NextPage<{
             streakCount={currentStreakCount}
             maxStreak={props.pokemonList.length}
           />
-          <div className="w-full sm:row-start-2">
+          <div className="w-full sm:row-start-2 [min-height:260px]">
             <PokemonNameInput
               guessEnabled={!reveal}
               pokemonList={props.pokemonList}
@@ -148,6 +149,12 @@ const Home: NextPage<{
           </div>
         </dialog>
       </main>
+
+      <footer className="flex justify-center py-4">
+        <Link href="/results">
+          <a className="border border-slate-500 px-2 py-1">View Results</a>
+        </Link>
+      </footer>
     </div>
   );
 };
