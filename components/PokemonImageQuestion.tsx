@@ -1,10 +1,9 @@
-import { CSSProperties, Fragment } from "react";
+import { Fragment } from "react";
 import Image from "next/future/image";
 import clsx from "clsx";
 
 export type PokemonImageQuestionProps = {
   className?: string;
-  style?: CSSProperties;
   imgSrc: string | undefined;
   revealed: boolean;
 };
