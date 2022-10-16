@@ -75,7 +75,7 @@ const Home: NextPage<{
             revealed={reveal}
           />
           <BadgeBar
-            streakCount={streakCount}
+            streakCount={currentStreakCount}
             maxStreak={props.pokemonList.length}
           />
           <div className="w-full sm:row-start-2">
