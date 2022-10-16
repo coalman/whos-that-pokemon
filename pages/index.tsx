@@ -1,6 +1,6 @@
 import type { NextPage, GetStaticProps } from "next";
 import Head from "next/head";
-import Image from "next/image";
+import Image from "next/future/image";
 import { useRef, useState } from "react";
 import { PokemonClient } from "pokenode-ts";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
@@ -59,7 +59,6 @@ const Home: NextPage<{
             <span>{"Who's that"}</span>
             <Image
               src="/pokemon-logo-small.png"
-              layout="fixed"
               width={100}
               height={37}
               alt="Pokemon (logo)"

@@ -1,5 +1,5 @@
 import { CSSProperties, Fragment } from "react";
-import Image from "next/image";
+import Image from "next/future/image";
 import clsx from "clsx";
 
 export type PokemonImageQuestionProps = {
@@ -24,17 +24,15 @@ const PokemonImageQuestion = (props: PokemonImageQuestionProps) => {
           <Silhouette className="absolute" imgSrc={props.imgSrc} />
           <Image
             className={clsx(
-              "absolute",
+              "w-full h-auto object-contain object-center relative",
               props.revealed
                 ? "opacity-100 transition-opacity duration-1000"
                 : "opacity-0"
             )}
             src={props.imgSrc}
-            layout="intrinsic"
-            width="475px"
-            height="475px"
-            objectFit="contain"
-            objectPosition="center"
+            sizes="100vw"
+            width={475}
+            height={475}
             alt="Pokemon to guess."
             onDragStart={(event) => {
               event.preventDefault();

@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next";
 import Head from "next/head";
-import Image from "next/image";
+import Image from "next/future/image";
 import { PokemonClient } from "pokenode-ts";
 import prisma from "lib/db";
 import Link from "next/link";
@@ -49,7 +49,6 @@ const Results: NextPage<{
                 <td className="flex items-center">
                   <Image
                     src={getPokemonThumbnailSrc(id + 1)}
-                    layout="fixed"
                     width={96}
                     height={96}
                     alt={props.pokemonList[id]}

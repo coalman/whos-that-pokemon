@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "next/future/image";
 import { useMemo } from "react";
 
 const pokeballTypes = ["poke", "great", "ultra", "master"] as const;
@@ -9,10 +9,11 @@ const PokeballIcon = (props: { type: PokeballType }) => {
 
   return (
     <Image
+      className="inline"
       src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${item}.png`}
-      layout="fixed"
       width={30}
       height={30}
+      alt="pokeball"
     />
   );
 };
@@ -38,7 +39,7 @@ const StreakCounter = (props: StreakCounterProps) => {
       <span>
         Streak: {props.value}/{props.maxValue}
       </span>
-      <span>
+      <span aria-hidden={true}>
         {pokeballs.map((ballType, index) => (
           <PokeballIcon key={index} type={ballType} />
         ))}
