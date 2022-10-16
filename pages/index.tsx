@@ -5,9 +5,9 @@ import { useRef, useState } from "react";
 import { PokemonClient } from "pokenode-ts";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
 import PokemonNameInput from "components/PokemonNameInput";
-import StreakCounter from "components/StreakCounter";
 import useRandomPokemon from "lib/useRandomPokemon";
 import clsx from "clsx";
+import { BadgeBar } from "components/BadgeBar";
 
 const getPokemonImgSrc = (index: number) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${index}.png`;
@@ -55,7 +55,7 @@ const Home: NextPage<{
             "sm:grid-cols-[repeat(2,_minmax(0,_500px))] sm:grid-rows-[min-content_1fr] sm:gap-4 sm:px-4"
           )}
         >
-          <h1 className="pt-1 text-2xl flex justify-center whitespace-nowrap">
+          <h1 className="pt-1 text-2xl flex justify-center items-center whitespace-nowrap">
             <span>{"Who's that"}</span>
             <Image
               src="/pokemon-logo-small.png"
@@ -74,13 +74,11 @@ const Home: NextPage<{
             }
             revealed={reveal}
           />
+          <BadgeBar
+            streakCount={streakCount}
+            maxStreak={props.pokemonList.length}
+          />
           <div className="w-full sm:row-start-2">
-            <div>
-              <StreakCounter
-                value={currentStreakCount}
-                maxValue={props.pokemonList.length}
-              />
-            </div>
             <PokemonNameInput
               guessEnabled={!reveal}
               pokemonList={props.pokemonList}
