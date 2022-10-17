@@ -10,8 +10,7 @@ import clsx from "clsx";
 import { BadgeBar } from "components/BadgeBar";
 import Link from "next/link";
 
-const getPokemonImgSrc = (index: number) =>
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${index}.png`;
+const getPokemonImgSrc = (index: number) => `/api/img/pokemon/${index}.png`;
 
 const Home: NextPage<{
   pokemonList: readonly string[];
