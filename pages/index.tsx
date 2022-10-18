@@ -9,6 +9,7 @@ import useRandomPokemon from "lib/useRandomPokemon";
 import clsx from "clsx";
 import { BadgeBar } from "components/BadgeBar";
 import Link from "next/link";
+import logoImage from "public/pokemon-logo-small.png";
 
 const getPokemonImgSrc = (index: number) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${index}.png`;
@@ -59,7 +60,7 @@ const Home: NextPage<{
           <h1 className="pt-1 text-2xl flex justify-center items-center whitespace-nowrap">
             <span>{"Who's that"}</span>
             <Image
-              src="/pokemon-logo-small.png"
+              src={logoImage}
               width={100}
               height={37}
               alt="Pokemon (logo)"
