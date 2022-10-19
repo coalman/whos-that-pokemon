@@ -67,6 +67,7 @@ const Badge = (props: { badgeIndex: number; visible: boolean }) => {
             : "opacity-0"
         )}
         src={imgSrc}
+        unoptimized
         width={85}
         height={85}
         alt={`Pokemon badge number ${props.badgeIndex}.`}
@@ -77,6 +78,4 @@ const Badge = (props: { badgeIndex: number; visible: boolean }) => {
 };
 
 const badgeImgSrc = (badgeIndex: number) =>
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/${
-    badgeIndex + 1
-  }.png`;
+  `/img/badges/${badgeIndex + 1}.webp`;

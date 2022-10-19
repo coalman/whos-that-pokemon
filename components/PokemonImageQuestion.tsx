@@ -29,6 +29,7 @@ const PokemonImageQuestion = (props: PokemonImageQuestionProps) => {
                 : "opacity-0"
             )}
             src={props.imgSrc}
+            unoptimized
             sizes="100vw"
             width={475}
             height={475}
