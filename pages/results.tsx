@@ -49,6 +49,7 @@ const Results: NextPage<{
                 <td className="flex items-center">
                   <Image
                     src={getPokemonThumbnailSrc(id + 1)}
+                    unoptimized
                     width={96}
                     height={96}
                     alt={props.pokemonList[id]}
@@ -90,8 +91,7 @@ const shortFormatter = new Intl.NumberFormat(undefined, {
   notation: "compact",
 });
 
-const getPokemonThumbnailSrc = (index: number) =>
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index}.png`;
+const getPokemonThumbnailSrc = (index: number) => `/img/pokemon/${index}.webp`;
 
 const getGuessData = () =>
   prisma.guess.groupBy({

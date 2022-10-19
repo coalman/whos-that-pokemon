@@ -12,7 +12,7 @@ import Link from "next/link";
 import logoImage from "public/pokemon-logo-small.png";
 
 const getPokemonImgSrc = (index: number) =>
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${index}.png`;
+  `/img/pokemon/other/official-artwork/${index + 1}.webp`;
 
 const Home: NextPage<{
   pokemonList: readonly string[];
@@ -71,7 +71,7 @@ const Home: NextPage<{
             className="sm:row-start-2"
             imgSrc={
               pokemonIndex !== undefined
-                ? getPokemonImgSrc(pokemonIndex + 1)
+                ? getPokemonImgSrc(pokemonIndex)
                 : undefined
             }
             revealed={reveal}
