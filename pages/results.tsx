@@ -1,12 +1,11 @@
 import type { NextPage, GetServerSideProps } from "next";
 import Head from "next/head";
 import Image from "next/future/image";
-import { PokemonClient } from "pokenode-ts";
 import prisma from "lib/db";
 import Link from "next/link";
+import pokemonList from "lib/pokemonNames.json";
 
 const Results: NextPage<{
-  pokemonList: readonly string[];
   results: ReturnType<typeof sumGuessData>;
 }> = (props) => {
   return (
@@ -52,11 +51,9 @@ const Results: NextPage<{
                     unoptimized
                     width={96}
                     height={96}
-                    alt={props.pokemonList[id]}
+                    alt={pokemonList[id]}
                   />
-                  <span className="capitalize pl-2">
-                    {props.pokemonList[id]}
-                  </span>
+                  <span className="capitalize pl-2">{pokemonList[id]}</span>
                 </td>
                 <td className="font-mono text-right">
                   {percentFormatter.format(total > 0 ? correct / total : 0)}
@@ -76,14 +73,11 @@ const Results: NextPage<{
 export default Results;
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const pokeApi = new PokemonClient();
+  const results = await getGuessData().then((data) =>
+    sumGuessData(data, 0, 151)
+  );
 
-  const [pokemonList, results] = await Promise.all([
-    getPokemonNames(pokeApi, 0, 151),
-    getGuessData().then((data) => sumGuessData(data, 0, 151)),
-  ]);
-
-  return { props: { results, pokemonList } };
+  return { props: { results } };
 };
 
 const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent" });
@@ -103,15 +97,6 @@ const getGuessData = () =>
   });
 
 export type GuessData = Awaited<ReturnType<typeof getGuessData>>;
-
-export async function getPokemonNames(
-  api: PokemonClient,
-  start: number,
-  length: number
-): Promise<string[]> {
-  const { results } = await api.listPokemons(start, length);
-  return results.map(({ name }) => name);
-}
 
 export function sumGuessData(
   data: GuessData,

@@ -1,8 +1,7 @@
-import type { NextPage, GetStaticProps } from "next";
+import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/future/image";
 import { useRef, useState } from "react";
-import { PokemonClient } from "pokenode-ts";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
 import PokemonNameInput from "components/PokemonNameInput";
 import useRandomPokemon from "lib/useRandomPokemon";
@@ -10,22 +9,21 @@ import clsx from "clsx";
 import { BadgeBar } from "components/BadgeBar";
 import Link from "next/link";
 import logoImage from "public/pokemon-logo-small.png";
+import pokemonList from "lib/pokemonNames.json";
 
 const getPokemonImgSrc = (index: number) =>
   `/img/pokemon/other/official-artwork/${index + 1}.webp`;
 
-const Home: NextPage<{
-  pokemonList: readonly string[];
-}> = (props) => {
+const Home: NextPage = () => {
   const [guess, setGuess] = useState("");
   const [reveal, setReveal] = useState(false);
 
   const { pokemonIndex, nextRandomPokemon, streakCount } = useRandomPokemon(
-    props.pokemonList.length
+    pokemonList.length
   );
 
   const pokemonName =
-    pokemonIndex !== undefined ? props.pokemonList[pokemonIndex] : undefined;
+    pokemonIndex !== undefined ? pokemonList[pokemonIndex] : undefined;
 
   const nextQuestion = () => {
     const streak = pokemonName === guess;
@@ -78,12 +76,12 @@ const Home: NextPage<{
           />
           <BadgeBar
             streakCount={currentStreakCount}
-            maxStreak={props.pokemonList.length}
+            maxStreak={pokemonList.length}
           />
           <div className="w-full sm:row-start-2 [min-height:260px]">
             <PokemonNameInput
               guessEnabled={!reveal}
-              pokemonList={props.pokemonList}
+              pokemonList={pokemonList}
               value={guess}
               onChange={setGuess}
               onGuess={(guess) => {
@@ -92,7 +90,7 @@ const Home: NextPage<{
 
                 if (
                   guess === pokemonName &&
-                  streakCount + 1 === props.pokemonList.length &&
+                  streakCount + 1 === pokemonList.length &&
                   refDialog.current
                 ) {
                   refDialog.current.showModal();
@@ -101,7 +99,7 @@ const Home: NextPage<{
 
                 postGuess({
                   actualPokemon: pokemonIndex as number,
-                  guessedPokemon: props.pokemonList.indexOf(guess) as number,
+                  guessedPokemon: pokemonList.indexOf(guess) as number,
                 });
               }}
               onNextQuestion={nextQuestion}
@@ -134,9 +132,7 @@ const Home: NextPage<{
         >
           <div className="flex flex-col gap-4">
             <h2 className="text-2xl">Congratulations!</h2>
-            <p>
-              You got all {props.pokemonList.length} pokemon correct in a row.
-            </p>
+            <p>You got all {pokemonList.length} pokemon correct in a row.</p>
             <button
               ref={refDialogBtn}
               type="button"
@@ -161,14 +157,6 @@ const Home: NextPage<{
 };
 
 export default Home;
-
-export const getStaticProps: GetStaticProps = async () => {
-  const pokeApi = new PokemonClient();
-  const { results } = await pokeApi.listPokemons(0, 151);
-  const pokemonList = results.map((r) => r.name);
-
-  return { props: { pokemonList } };
-};
 
 async function postGuess(guess: {
   actualPokemon: number;
