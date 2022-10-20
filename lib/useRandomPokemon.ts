@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 
 export default function useRandomPokemon(initialPokemonCount: number) {
-  const [state, setState] = useState<RandomPokemonState>(() =>
-    initialRandomPokemonState(initialPokemonCount)
-  );
+  const [{ pokemonIndex, nextPokemonIndex }, setState] =
+    useState<RandomPokemonState>(() =>
+      initialRandomPokemonState(initialPokemonCount)
+    );
 
   const nextRandomPokemon = useCallback((streak: boolean) => {
     const random = Math.random();
@@ -11,16 +12,13 @@ export default function useRandomPokemon(initialPokemonCount: number) {
   }, []);
 
   useEffect(() => {
-    if (state.pokemonIndex !== undefined) return;
+    if (pokemonIndex !== undefined) return;
 
-    setState(startRandomPokemonState(Math.random(), Math.random()));
-  }, [state.pokemonIndex]);
+    const randoms: [number, number] = [Math.random(), Math.random()];
+    setState(startRandomPokemonState(randoms));
+  }, [pokemonIndex]);
 
-  return {
-    pokemonIndex: state.pokemonIndex,
-    nextPokemonIndex: state.nextPokemonIndex,
-    nextRandomPokemon,
-  };
+  return { pokemonIndex, nextPokemonIndex, nextRandomPokemon };
 }
 
 export type RandomPokemonState = Readonly<{
@@ -48,16 +46,22 @@ export type RandomPokemonState = Readonly<{
 
 export const initialRandomPokemonState = (
   pokemonCount: number
-): RandomPokemonState => ({
-  pokemonIndex: undefined,
-  nextPokemonIndex: undefined,
-  indexes: indexArray(pokemonCount),
-  answeredIndexes: [],
-  streakIndexes: [],
-});
+): RandomPokemonState => {
+  const indexes = new Array<number>(pokemonCount);
+  for (let i = 0; i < pokemonCount; i++) {
+    indexes[i] = i;
+  }
+  return {
+    pokemonIndex: undefined,
+    nextPokemonIndex: undefined,
+    indexes,
+    answeredIndexes: [],
+    streakIndexes: [],
+  };
+};
 
 export const startRandomPokemonState =
-  (random1: number, random2: number) =>
+  ([random1, random2]: readonly [number, number]) =>
   (prev: RandomPokemonState): RandomPokemonState => {
     // NOTE: currentIndex !== undefined happens in StrictMode.
     //     | Not sure if it could happen in concurrent mode.
@@ -65,11 +69,11 @@ export const startRandomPokemonState =
 
     const indexes = [...prev.indexes];
     const [pokemonIndex] = indexes.splice(
-      Math.floor(random1 * indexes.length),
+      scaleToIndex(random1, indexes.length),
       1
     );
     const [nextPokemonIndex] = indexes.splice(
-      Math.floor(random2 * indexes.length),
+      scaleToIndex(random2, indexes.length),
       1
     );
     return { ...prev, indexes, pokemonIndex, nextPokemonIndex };
@@ -117,7 +121,7 @@ export const nextRandomPokemonState =
 
     // draw another nextPokemonIndex
     {
-      const randomIndex = Math.floor(random * indexes.length);
+      const randomIndex = scaleToIndex(random, indexes.length);
       const nextIndexes = [...indexes];
       [nextPokemonIndex] = nextIndexes.splice(randomIndex, 1);
       indexes = nextIndexes;
@@ -132,10 +136,5 @@ export const nextRandomPokemonState =
     };
   };
 
-export function indexArray(length: number): number[] {
-  const array = new Array<number>(length);
-  for (let i = 0; i < length; i++) {
-    array[i] = i;
-  }
-  return array;
-}
+const scaleToIndex = (random: number, length: number) =>
+  Math.floor(random * length);

@@ -1,26 +1,20 @@
 import {
-  indexArray,
   nextRandomPokemonState,
   initialRandomPokemonState,
   startRandomPokemonState,
   type RandomPokemonState,
 } from "./useRandomPokemon";
 
-describe("indexArray", () => {
-  it("should return empty array for 0 length", () => {
-    expect(indexArray(0)).toHaveLength(0);
-  });
-
+describe(initialRandomPokemonState.name, () => {
   it.each([
-    [[0], 1],
+    [[0, 1], 2],
     [[0, 1, 2], 3],
     [[0, 1, 2, 3, 4, 5], 6],
-  ])("should return %s for length=%s", (expected, length) => {
-    expect(indexArray(length)).toStrictEqual(expected);
+  ])("should return %s index array for length=%s", (expected, length) => {
+    const { indexes } = initialRandomPokemonState(length);
+    expect(indexes).toStrictEqual(expected);
   });
-});
 
-describe(initialRandomPokemonState.name, () => {
   it("should be deterministic", () => {
     for (let _i = 0; _i < 5; _i++) {
       const first = initialRandomPokemonState(20);
@@ -35,25 +29,20 @@ describe(startRandomPokemonState.name, () => {
   // NOTE: this case only happens in StrictMode because the start effect runs twice.
   it("should not modify state that has already started (StrictMode check)", () => {
     let firstState = initialRandomPokemonState(5);
-    firstState = startRandomPokemonState(0, 0.75)(firstState);
+    firstState = startRandomPokemonState([0, 0.75])(firstState);
     let secondState = { ...firstState };
-    secondState = startRandomPokemonState(0.99, 0.25)(secondState);
+    secondState = startRandomPokemonState([0.99, 0.25])(secondState);
 
     expect(firstState).toStrictEqual(secondState);
     // also test that it returns the previous state (to bail out of another react render).
-    expect(firstState).toBe(startRandomPokemonState(0.99, 0.25)(firstState));
+    expect(firstState).toBe(startRandomPokemonState([0.99, 0.25])(firstState));
   });
 });
 
 describe(nextRandomPokemonState.name, () => {
-  const init = (length: number, random1 = 0, random2 = 0.99) => {
-    let state = initialRandomPokemonState(length);
-    state = startRandomPokemonState(random1, random2)(state);
-    return state;
-  };
-
   it("should append correct answer to streak array", () => {
-    let state = init(5);
+    let state = initialRandomPokemonState(5);
+    state = startRandomPokemonState([0, 0.99])(state);
     state = nextRandomPokemonState(0.5, true)(state);
     expect(state).toStrictEqual({
       pokemonIndex: 4,
@@ -65,7 +54,8 @@ describe(nextRandomPokemonState.name, () => {
   });
 
   it("should append incorrect answer to answered array", () => {
-    let state = init(5);
+    let state = initialRandomPokemonState(5);
+    state = startRandomPokemonState([0, 0.99])(state);
     state = nextRandomPokemonState(0.5, false)(state);
     expect(state).toStrictEqual({
       pokemonIndex: 4,
