@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/future/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
 import PokemonNameInput from "components/PokemonNameInput";
 import useRandomPokemon from "lib/useRandomPokemon";
@@ -14,14 +14,33 @@ import pokemonList from "lib/pokemonNames.json";
 const getPokemonImgSrc = (index: number) =>
   `/img/pokemon/other/official-artwork/${index + 1}.webp`;
 
+const fetchedPokemonIndexes = new Set<number>();
+
 const Home: NextPage = () => {
   const [guess, setGuess] = useState("");
   const [reveal, setReveal] = useState(false);
   const [streakCount, setStreakCount] = useState(0);
 
-  const { pokemonIndex, nextRandomPokemon } = useRandomPokemon(
-    pokemonList.length
-  );
+  const { pokemonIndex, nextPokemonIndex, nextRandomPokemon } =
+    useRandomPokemon(pokemonList.length);
+
+  useEffect(() => {
+    if (pokemonIndex === undefined) return;
+
+    // prevent eager fetching of this pokemon again.
+    fetchedPokemonIndexes.add(pokemonIndex);
+  }, [pokemonIndex]);
+
+  useEffect(() => {
+    if (
+      nextPokemonIndex === undefined ||
+      fetchedPokemonIndexes.has(nextPokemonIndex)
+    ) {
+      return;
+    }
+
+    document.createElement("img").src = getPokemonImgSrc(nextPokemonIndex);
+  }, [nextPokemonIndex]);
 
   const pokemonName =
     pokemonIndex !== undefined ? pokemonList[pokemonIndex] : undefined;
