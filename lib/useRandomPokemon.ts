@@ -20,7 +20,6 @@ export default function useRandomPokemon(initialPokemonCount: number) {
     pokemonIndex: state.pokemonIndex,
     nextPokemonIndex: state.nextPokemonIndex,
     nextRandomPokemon,
-    streakCount: state.streakIndexes.length,
   };
 }
 

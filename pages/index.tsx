@@ -17,8 +17,9 @@ const getPokemonImgSrc = (index: number) =>
 const Home: NextPage = () => {
   const [guess, setGuess] = useState("");
   const [reveal, setReveal] = useState(false);
+  const [streakCount, setStreakCount] = useState(0);
 
-  const { pokemonIndex, nextRandomPokemon, streakCount } = useRandomPokemon(
+  const { pokemonIndex, nextRandomPokemon } = useRandomPokemon(
     pokemonList.length
   );
 
@@ -29,16 +30,14 @@ const Home: NextPage = () => {
     const streak = pokemonName === guess;
     setReveal(false);
     setGuess("");
+    if (streakCount === pokemonList.length) {
+      setStreakCount(0);
+    }
     nextRandomPokemon(streak);
   };
 
   const refDialog = useRef<HTMLDialogElement>(null);
   const refDialogBtn = useRef<HTMLButtonElement>(null);
-
-  let currentStreakCount = streakCount;
-  if (reveal && pokemonName === guess) {
-    currentStreakCount += 1;
-  }
 
   return (
     <div>
@@ -74,10 +73,7 @@ const Home: NextPage = () => {
             }
             revealed={reveal}
           />
-          <BadgeBar
-            streakCount={currentStreakCount}
-            maxStreak={pokemonList.length}
-          />
+          <BadgeBar streakCount={streakCount} maxStreak={pokemonList.length} />
           <div className="w-full sm:row-start-2 [min-height:260px]">
             <PokemonNameInput
               guessEnabled={!reveal}
@@ -88,9 +84,12 @@ const Home: NextPage = () => {
                 setReveal(true);
                 setGuess(guess);
 
+                const currentStreakCount =
+                  guess === pokemonName ? streakCount + 1 : 0;
+                setStreakCount(currentStreakCount);
+
                 if (
-                  guess === pokemonName &&
-                  streakCount + 1 === pokemonList.length &&
+                  currentStreakCount === pokemonList.length &&
                   refDialog.current
                 ) {
                   refDialog.current.showModal();
