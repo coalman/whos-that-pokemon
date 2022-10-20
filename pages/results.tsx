@@ -135,6 +135,6 @@ export function sumGuessData(
 
     // if they both have the same accuracy, order them on the number of responses
     // descending when above 50%, ascending when 50% or below
-    return (aCorrectPercent > 0.5 ? 1 : -1) * a.total - b.total;
+    return (aCorrectPercent > 0.5 ? 1 : -1) * (a.total - b.total);
   });
 }
