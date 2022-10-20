@@ -165,10 +165,19 @@ const Home: NextPage = () => {
         </dialog>
       </main>
 
-      <footer className="flex justify-center py-4">
+      <footer className="flex justify-center items-center gap-4 py-4">
         <Link href="/results">
           <a className="border border-slate-500 px-2 py-1">View Results</a>
         </Link>
+        <a
+          href="https://github.com/coalman/whos-that-pokemon"
+          aria-label="Github repository link."
+          className="border border-slate-500 px-2 py-1"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <use href="/github.svg#icon" />
+          </svg>
+        </a>
       </footer>
     </div>
   );
