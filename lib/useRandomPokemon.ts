@@ -136,5 +136,5 @@ export const nextRandomPokemonState =
     };
   };
 
-const scaleToIndex = (random: number, length: number) =>
+export const scaleToIndex = (random: number, length: number) =>
   Math.floor(random * length);

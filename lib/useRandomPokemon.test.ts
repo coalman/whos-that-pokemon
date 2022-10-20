@@ -1,9 +1,27 @@
 import {
+  scaleToIndex,
   nextRandomPokemonState,
   initialRandomPokemonState,
   startRandomPokemonState,
   type RandomPokemonState,
 } from "./useRandomPokemon";
+
+describe("scaleToIndex", () => {
+  it("should return length-1 for random close to 1", () => {
+    const actual = scaleToIndex(1 - 1e-10, 151);
+    expect(actual).toBe(150);
+  });
+
+  it("should return 0 for random=0", () => {
+    const actual = scaleToIndex(0, 151);
+    expect(actual).toBe(0);
+  });
+
+  it("should return index=75 (151 items) for random=0.5", () => {
+    const actual = scaleToIndex(0.5, 151);
+    expect(actual).toBe(75);
+  });
+});
 
 describe(initialRandomPokemonState.name, () => {
   it.each([
