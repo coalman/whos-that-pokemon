@@ -11,17 +11,14 @@ export default function useRandomPokemon(initialPokemonCount: number) {
   }, []);
 
   useEffect(() => {
-    if (state.currentIndex !== undefined) return;
+    if (state.pokemonIndex !== undefined) return;
 
     const random = Math.random();
     setState(startRandomPokemonState(random));
-  }, [state.currentIndex]);
+  }, [state.pokemonIndex]);
 
   return {
-    pokemonIndex:
-      state.currentIndex === undefined
-        ? undefined
-        : state.indexes[state.currentIndex],
+    pokemonIndex: state.pokemonIndex,
     nextRandomPokemon,
     streakCount: state.streakIndexes.length,
   };
@@ -29,9 +26,9 @@ export default function useRandomPokemon(initialPokemonCount: number) {
 
 export type RandomPokemonState = Readonly<{
   /**
-   * The current index in the `indexes` array being guessed.
+   * The current pokemon index to be guessed.
    */
-  currentIndex: number | undefined;
+  pokemonIndex: number | undefined;
   /**
    * Pokemon indexes that should be guessed.
    */
@@ -49,57 +46,68 @@ export type RandomPokemonState = Readonly<{
 export const initialRandomPokemonState = (
   pokemonCount: number
 ): RandomPokemonState => ({
-  currentIndex: undefined,
+  pokemonIndex: undefined,
   indexes: indexArray(pokemonCount),
   answeredIndexes: [],
   streakIndexes: [],
 });
 
 export const startRandomPokemonState =
-  (random: number) => (prev: RandomPokemonState) => {
-    // NOTE: currentIndex !== undefined only happens in StrictMode. Not sure if it would happen in concurrent mode.
-    return prev.currentIndex !== undefined
-      ? prev
-      : { ...prev, currentIndex: Math.floor(random * prev.indexes.length) };
+  (random: number) =>
+  (prev: RandomPokemonState): RandomPokemonState => {
+    // NOTE: currentIndex !== undefined happens in StrictMode.
+    //     | Not sure if it could happen in concurrent mode.
+    if (prev.pokemonIndex !== undefined) return prev;
+
+    const randomIndex = Math.floor(random * prev.indexes.length);
+    const indexes = [...prev.indexes];
+    const [pokemonIndex] = indexes.splice(randomIndex, 1);
+    return { ...prev, indexes, pokemonIndex };
   };
 
 export const nextRandomPokemonState =
-  (random: number, streak: boolean) => (prev: RandomPokemonState) => {
-    let indexes = prev.indexes;
-    let answeredIndexes = prev.answeredIndexes;
-    let streakIndexes = prev.streakIndexes;
+  (random: number, streak: boolean) =>
+  (prev: RandomPokemonState): RandomPokemonState => {
+    let { pokemonIndex, indexes, answeredIndexes, streakIndexes } = prev;
 
-    if (prev.currentIndex !== undefined) {
-      const nextIndexes = [...indexes];
-      const [pokemonIndex] = nextIndexes.splice(prev.currentIndex, 1);
-      indexes = nextIndexes;
-
+    // add current pokemonIndex to answered questions (or current streak)
+    if (pokemonIndex !== undefined) {
       if (streak) {
         streakIndexes = [...streakIndexes, pokemonIndex];
       } else {
         answeredIndexes = [...answeredIndexes, pokemonIndex];
       }
+      pokemonIndex = undefined;
     }
 
+    // if the question was answered correctly, reset the streak.
     if (!streak) {
-      answeredIndexes = [...answeredIndexes].concat(streakIndexes);
+      answeredIndexes = answeredIndexes.concat(streakIndexes);
       streakIndexes = [];
     }
 
+    // ensure we have indexes to draw the next pokemonIndex from
     if (indexes.length === 0) {
       if (answeredIndexes.length > 0) {
         indexes = answeredIndexes;
         answeredIndexes = [];
       } else {
+        // this case happens when the user answered all the pokemon correctly in a streak.
         indexes = streakIndexes;
         streakIndexes = [];
       }
     }
 
-    const currentIndex = Math.floor(random * indexes.length);
+    // draw another pokemonIndex
+    {
+      const randomIndex = Math.floor(random * indexes.length);
+      const nextIndexes = [...indexes];
+      [pokemonIndex] = nextIndexes.splice(randomIndex, 1);
+      indexes = nextIndexes;
+    }
 
     return {
-      currentIndex,
+      pokemonIndex,
       indexes,
       answeredIndexes,
       streakIndexes,

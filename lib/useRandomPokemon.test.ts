@@ -56,8 +56,8 @@ describe(nextRandomPokemonState.name, () => {
     let state = init(5);
     state = nextRandomPokemonState(0.99, true)(state);
     expect(state).toStrictEqual({
-      currentIndex: 3,
-      indexes: [1, 2, 3, 4],
+      pokemonIndex: 4,
+      indexes: [1, 2, 3],
       streakIndexes: [0],
       answeredIndexes: [],
     });
@@ -67,8 +67,8 @@ describe(nextRandomPokemonState.name, () => {
     let state = init(5);
     state = nextRandomPokemonState(0.99, false)(state);
     expect(state).toStrictEqual({
-      currentIndex: 3,
-      indexes: [1, 2, 3, 4],
+      pokemonIndex: 4,
+      indexes: [1, 2, 3],
       streakIndexes: [],
       answeredIndexes: [0],
     });
@@ -76,16 +76,16 @@ describe(nextRandomPokemonState.name, () => {
 
   it("should append streak questions to incorrect questions on wrong answer", () => {
     let state: RandomPokemonState = {
-      currentIndex: 0,
-      indexes: [0, 1, 2],
+      pokemonIndex: 0,
+      indexes: [1, 2],
       answeredIndexes: [3, 4],
       streakIndexes: [5, 6],
     };
     state = nextRandomPokemonState(0.5, false)(state);
 
     expect(state).toStrictEqual({
-      currentIndex: 1,
-      indexes: [1, 2],
+      pokemonIndex: 2,
+      indexes: [1],
       answeredIndexes: [3, 4, 0, 5, 6],
       streakIndexes: [],
     });
@@ -93,16 +93,16 @@ describe(nextRandomPokemonState.name, () => {
 
   it("should serve incorrectly answered questions after initial set is finished", () => {
     let state: RandomPokemonState = {
-      currentIndex: 0,
-      indexes: [0],
+      pokemonIndex: 0,
+      indexes: [],
       answeredIndexes: [1, 2, 3],
       streakIndexes: [4, 5],
     };
-    state = nextRandomPokemonState(0.5, true)(state);
+    state = nextRandomPokemonState(0.99, true)(state);
 
     expect(state).toStrictEqual({
-      currentIndex: 1,
-      indexes: [1, 2, 3],
+      pokemonIndex: 3,
+      indexes: [1, 2],
       answeredIndexes: [],
       streakIndexes: [4, 5, 0],
     });
@@ -110,16 +110,16 @@ describe(nextRandomPokemonState.name, () => {
 
   it("should serve streak questions if last question in a set is incorrectly answered", () => {
     let state: RandomPokemonState = {
-      currentIndex: 0,
-      indexes: [0],
+      pokemonIndex: 0,
+      indexes: [],
       answeredIndexes: [1, 2, 3],
       streakIndexes: [4, 5],
     };
-    state = nextRandomPokemonState(0.5, false)(state);
+    state = nextRandomPokemonState(0.99, false)(state);
 
     expect(state).toStrictEqual({
-      currentIndex: 3,
-      indexes: [1, 2, 3, 0, 4, 5],
+      pokemonIndex: 5,
+      indexes: [1, 2, 3, 0, 4],
       answeredIndexes: [],
       streakIndexes: [],
     });
