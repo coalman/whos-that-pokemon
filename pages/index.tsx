@@ -8,7 +8,7 @@ import useRandomPokemon from "lib/useRandomPokemon";
 import clsx from "clsx";
 import { BadgeBar } from "components/BadgeBar";
 import Link from "next/link";
-import logoImage from "public/pokemon-logo-small.png";
+import logoImage from "public/img/pokemon-logo-small.png";
 import pokemonList from "lib/pokemonNames.json";
 
 const getPokemonImgSrc = (index: number) =>
@@ -62,7 +62,7 @@ const Home: NextPage = () => {
     <div>
       <Head>
         <title>{"Who's that Pokemon?"}</title>
-        <link rel="icon" href="/poke-ball.png" />
+        <link rel="icon" href="/img/poke-ball.png" />
         <meta name="description" content="Pokemon guessing game." />
       </Head>
 
@@ -175,7 +175,7 @@ const Home: NextPage = () => {
           className="border border-slate-500 px-2 py-1"
         >
           <svg width="24" height="24" viewBox="0 0 24 24">
-            <use href="/github.svg#icon" />
+            <use href="/img/github.svg#icon" />
           </svg>
         </a>
       </footer>

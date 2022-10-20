@@ -12,7 +12,7 @@ const Results: NextPage<{
     <div className="flex flex-col justify-center">
       <Head>
         <title>{"Who's that Pokemon?"}</title>
-        <link rel="icon" href="/poke-ball.png" />
+        <link rel="icon" href="/img/poke-ball.png" />
         <meta
           name="description"
           content="Global results for the guessing pokemon game."
