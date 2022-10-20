@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/future/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PokemonImageQuestion from "components/PokemonImageQuestion";
 import PokemonNameInput from "components/PokemonNameInput";
 import useRandomPokemon from "lib/useRandomPokemon";
@@ -14,13 +14,33 @@ import pokemonList from "lib/pokemonNames.json";
 const getPokemonImgSrc = (index: number) =>
   `/img/pokemon/other/official-artwork/${index + 1}.webp`;
 
+const fetchedPokemonIndexes = new Set<number>();
+
 const Home: NextPage = () => {
   const [guess, setGuess] = useState("");
   const [reveal, setReveal] = useState(false);
+  const [streakCount, setStreakCount] = useState(0);
 
-  const { pokemonIndex, nextRandomPokemon, streakCount } = useRandomPokemon(
-    pokemonList.length
-  );
+  const { pokemonIndex, nextPokemonIndex, nextRandomPokemon } =
+    useRandomPokemon(pokemonList.length);
+
+  useEffect(() => {
+    if (pokemonIndex === undefined) return;
+
+    // prevent eager fetching of this pokemon again.
+    fetchedPokemonIndexes.add(pokemonIndex);
+  }, [pokemonIndex]);
+
+  useEffect(() => {
+    if (
+      nextPokemonIndex === undefined ||
+      fetchedPokemonIndexes.has(nextPokemonIndex)
+    ) {
+      return;
+    }
+
+    document.createElement("img").src = getPokemonImgSrc(nextPokemonIndex);
+  }, [nextPokemonIndex]);
 
   const pokemonName =
     pokemonIndex !== undefined ? pokemonList[pokemonIndex] : undefined;
@@ -29,16 +49,14 @@ const Home: NextPage = () => {
     const streak = pokemonName === guess;
     setReveal(false);
     setGuess("");
+    if (streakCount === pokemonList.length) {
+      setStreakCount(0);
+    }
     nextRandomPokemon(streak);
   };
 
   const refDialog = useRef<HTMLDialogElement>(null);
   const refDialogBtn = useRef<HTMLButtonElement>(null);
-
-  let currentStreakCount = streakCount;
-  if (reveal && pokemonName === guess) {
-    currentStreakCount += 1;
-  }
 
   return (
     <div>
@@ -74,10 +92,7 @@ const Home: NextPage = () => {
             }
             revealed={reveal}
           />
-          <BadgeBar
-            streakCount={currentStreakCount}
-            maxStreak={pokemonList.length}
-          />
+          <BadgeBar streakCount={streakCount} maxStreak={pokemonList.length} />
           <div className="w-full sm:row-start-2 [min-height:260px]">
             <PokemonNameInput
               guessEnabled={!reveal}
@@ -88,9 +103,12 @@ const Home: NextPage = () => {
                 setReveal(true);
                 setGuess(guess);
 
+                const currentStreakCount =
+                  guess === pokemonName ? streakCount + 1 : 0;
+                setStreakCount(currentStreakCount);
+
                 if (
-                  guess === pokemonName &&
-                  streakCount + 1 === pokemonList.length &&
+                  currentStreakCount === pokemonList.length &&
                   refDialog.current
                 ) {
                   refDialog.current.showModal();

@@ -1,12 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 
 export default function useRandomPokemon(initialPokemonCount: number) {
-  const [state, setState] = useState<RandomPokemonState>(() => ({
-    currentIndex: undefined,
-    indexes: indexArray(initialPokemonCount),
-    answeredIndexes: [],
-    streakIndexes: [],
-  }));
+  const [{ pokemonIndex, nextPokemonIndex }, setState] =
+    useState<RandomPokemonState>(() =>
+      initialRandomPokemonState(initialPokemonCount)
+    );
 
   const nextRandomPokemon = useCallback((streak: boolean) => {
     const random = Math.random();
@@ -14,34 +12,24 @@ export default function useRandomPokemon(initialPokemonCount: number) {
   }, []);
 
   useEffect(() => {
-    if (state.currentIndex !== undefined) return;
+    if (pokemonIndex !== undefined) return;
 
-    const random = Math.random();
-    setState((prev) =>
-      // NOTE: this only happens in StrictMode. Not sure if it would happen in concurrent mode.
-      prev.currentIndex !== undefined
-        ? prev
-        : { ...prev, currentIndex: Math.floor(random * prev.indexes.length) }
-    );
-  }, [state.currentIndex]);
+    const randoms: [number, number] = [Math.random(), Math.random()];
+    setState(startRandomPokemonState(randoms));
+  }, [pokemonIndex]);
 
-  let pokemonIndex = undefined;
-  if (state.currentIndex !== undefined) {
-    pokemonIndex = state.indexes[state.currentIndex];
-  }
-
-  return {
-    pokemonIndex,
-    nextRandomPokemon,
-    streakCount: state.streakIndexes.length,
-  };
+  return { pokemonIndex, nextPokemonIndex, nextRandomPokemon };
 }
 
-type RandomPokemonState = Readonly<{
+export type RandomPokemonState = Readonly<{
   /**
-   * The current index in the `indexes` array being guessed.
+   * The current pokemon index to be guessed.
    */
-  currentIndex: number | undefined;
+  pokemonIndex: number | undefined;
+  /**
+   * The next pokemon index to be guessed.
+   */
+  nextPokemonIndex: number | undefined;
   /**
    * Pokemon indexes that should be guessed.
    */
@@ -56,53 +44,97 @@ type RandomPokemonState = Readonly<{
   streakIndexes: readonly number[];
 }>;
 
-const nextRandomPokemonState =
-  (random: number, streak: boolean) => (prev: RandomPokemonState) => {
-    let indexes = prev.indexes;
-    let answeredIndexes = prev.answeredIndexes;
-    let streakIndexes = prev.streakIndexes;
+export const initialRandomPokemonState = (
+  pokemonCount: number
+): RandomPokemonState => {
+  const indexes = new Array<number>(pokemonCount);
+  for (let i = 0; i < pokemonCount; i++) {
+    indexes[i] = i;
+  }
+  return {
+    pokemonIndex: undefined,
+    nextPokemonIndex: undefined,
+    indexes,
+    answeredIndexes: [],
+    streakIndexes: [],
+  };
+};
 
-    if (prev.currentIndex !== undefined) {
-      const nextIndexes = [...indexes];
-      const [pokemonIndex] = nextIndexes.splice(prev.currentIndex, 1);
-      indexes = nextIndexes;
+export const startRandomPokemonState =
+  ([random1, random2]: readonly [number, number]) =>
+  (prev: RandomPokemonState): RandomPokemonState => {
+    // NOTE: currentIndex !== undefined happens in StrictMode.
+    //     | Not sure if it could happen in concurrent mode.
+    if (prev.pokemonIndex !== undefined) return prev;
 
+    const indexes = [...prev.indexes];
+    const [pokemonIndex] = indexes.splice(
+      scaleToIndex(random1, indexes.length),
+      1
+    );
+    const [nextPokemonIndex] = indexes.splice(
+      scaleToIndex(random2, indexes.length),
+      1
+    );
+    return { ...prev, indexes, pokemonIndex, nextPokemonIndex };
+  };
+
+export const nextRandomPokemonState =
+  (random: number, streak: boolean) =>
+  (prev: RandomPokemonState): RandomPokemonState => {
+    let {
+      pokemonIndex,
+      nextPokemonIndex,
+      indexes,
+      answeredIndexes,
+      streakIndexes,
+    } = prev;
+
+    // add current pokemonIndex to answered questions (or current streak)
+    if (pokemonIndex !== undefined) {
       if (streak) {
         streakIndexes = [...streakIndexes, pokemonIndex];
       } else {
         answeredIndexes = [...answeredIndexes, pokemonIndex];
       }
+      pokemonIndex = nextPokemonIndex;
+      nextPokemonIndex = undefined;
     }
 
+    // if the question was answered correctly, reset the streak.
     if (!streak) {
-      answeredIndexes = [...answeredIndexes].concat(streakIndexes);
+      answeredIndexes = answeredIndexes.concat(streakIndexes);
       streakIndexes = [];
     }
 
+    // ensure we have indexes to draw the next pokemonIndex from
     if (indexes.length === 0) {
       if (answeredIndexes.length > 0) {
         indexes = answeredIndexes;
         answeredIndexes = [];
       } else {
+        // this case happens when the user answered all the pokemon correctly in a streak.
         indexes = streakIndexes;
         streakIndexes = [];
       }
     }
 
-    const currentIndex = Math.floor(random * indexes.length);
+    // draw another nextPokemonIndex
+    {
+      const randomIndex = scaleToIndex(random, indexes.length);
+      const nextIndexes = [...indexes];
+      [nextPokemonIndex] = nextIndexes.splice(randomIndex, 1);
+      indexes = nextIndexes;
+    }
 
     return {
-      currentIndex,
+      pokemonIndex,
+      nextPokemonIndex,
       indexes,
       answeredIndexes,
       streakIndexes,
     };
   };
 
-function indexArray(length: number): number[] {
-  const array = new Array<number>(length);
-  for (let i = 0; i < length; i++) {
-    array[i] = i;
-  }
-  return array;
-}
+export const scaleToIndex = (random: number, length: number) =>
+  Math.floor(random * length);
