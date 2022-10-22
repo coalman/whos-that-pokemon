@@ -18,7 +18,10 @@ const PokemonImageQuestion = (props: PokemonImageQuestionProps) => {
         "sm:max-w-[500px]"
       )}
     >
-      {props.imgSrc !== undefined && (
+      {props.imgSrc === undefined ? (
+        // this box prevents layout shift (it is the same size as the image).
+        <div className={"w-full aspect-square"} />
+      ) : (
         <Fragment>
           <Silhouette className="absolute" imgSrc={props.imgSrc} />
           <Image
