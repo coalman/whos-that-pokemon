@@ -45,16 +45,21 @@ export function fitStreakScale(
 
   const a = (maxValue - xTerm) / aFactor;
 
-  const steps = new Array(stepCount).fill(a);
+  const steps = new Array<number>(stepCount).fill(a);
+  // step(0) = x
   steps[0] = initialStep;
-  return steps.map((value, i) => value + (steps[i - 1] ?? 0));
+  // step(i) = step(i - 1) + a
+  for (let i = 1; i < steps.length; i++) {
+    steps[i] = steps[i] + steps[i - 1];
+  }
+  return steps;
 }
 
 export function cumulativeSteps(steps: readonly number[]) {
-  const scale: readonly number[] = steps.map((step, i) => {
-    const boundary = step + (steps[i - 1] ?? 0);
-    return Math.round(boundary);
-  });
+  const scale = [...steps];
+  for (let i = 1; i < scale.length; i++) {
+    scale[i] = Math.round(scale[i] + scale[i - 1]);
+  }
 
   return (streakCount: number) => {
     for (let [i, badgeStreak] of scale.entries()) {
