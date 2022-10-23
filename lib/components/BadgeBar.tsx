@@ -1,7 +1,6 @@
-import { useMemo } from "react";
 import clsx from "clsx";
 import Image from "next/future/image";
-import { fitStreakScale, cumulativeSteps } from "lib/streakScale";
+import useScaleStreak from "lib/useScaleStreak";
 
 export type BadgeBarProps = {
   streakCount: number;
@@ -10,16 +9,15 @@ export type BadgeBarProps = {
 
 const badgeCount = 8;
 
-export const BadgeBar = (props: BadgeBarProps) => {
-  const scale = useMemo(() => {
-    const steps = fitStreakScale(props.maxStreak, badgeCount, 1);
-    return cumulativeSteps(steps);
-  }, [props.maxStreak]);
+const badgeImgSrc = (badgeIndex: number) =>
+  `/img/badges/${badgeIndex + 1}.webp`;
 
-  const badgesVisible = useMemo(
-    () => scale(props.streakCount),
-    [props.streakCount, scale]
-  );
+export const BadgeBar = (props: BadgeBarProps) => {
+  const badgesVisible = useScaleStreak({
+    stepCount: badgeCount,
+    streak: props.streakCount,
+    maxStreak: props.maxStreak,
+  });
 
   const badges = [];
   for (let i = 0; i < badgeCount; i++) {
@@ -76,6 +74,3 @@ const Badge = (props: { badgeIndex: number; visible: boolean }) => {
     </div>
   );
 };
-
-const badgeImgSrc = (badgeIndex: number) =>
-  `/img/badges/${badgeIndex + 1}.webp`;
