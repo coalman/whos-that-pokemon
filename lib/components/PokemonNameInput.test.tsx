@@ -98,8 +98,11 @@ it("should not show choices for empty string", async () => {
 
   await userEvent.type(input, "{Backspace}");
   expect(input.value).toBe("");
-
   expect(screen.queryAllByRole("option")).toHaveLength(0);
+
+  expect(screen.queryByText("Enter a pokemon name is required.")).toBe(null);
+  await userEvent.type(input, "{Enter}");
+  expect(screen.queryByText("Enter a pokemon name is required.")).toBeDefined();
 });
 
 describe("option selection", () => {
@@ -157,5 +160,16 @@ describe("option selection", () => {
     // try to go past last option
     await userEvent.type(input, "{ArrowDown}{ArrowDown}");
     expect(getSelectedState()).toStrictEqual([false, false, true]);
+  });
+
+  it("should not select an option on {ArrowDown} when there are no options", async () => {
+    const { input, getSelectedState } = await setup();
+
+    // change the choice list to have 0 items
+    await userEvent.type(input, "4{ArrowDown}{ArrowDown}");
+    // change the choice list to have 3 items
+    await userEvent.type(input, "{Backspace}");
+
+    expect(getSelectedState()).toStrictEqual([false, false, false]);
   });
 });
