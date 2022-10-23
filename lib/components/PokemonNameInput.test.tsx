@@ -27,14 +27,6 @@ const Test = (props: { choices: readonly string[] }) => {
           setGuess("");
         }}
       />
-      <button
-        onClick={() => {
-          setGuessEnabled(true);
-          setGuess("");
-        }}
-      >
-        Reset
-      </button>
     </Fragment>
   );
 };
@@ -78,17 +70,22 @@ it("should select the first choice (with mouse)", async () => {
   expect(screen.queryAllByRole("option")).toHaveLength(0);
 });
 
-it("should clear auto complete choices on Enter keydown", async () => {
+it("should call onNextQuestion on Enter keydown after commit", async () => {
   render(<Test choices={["p1", "p2", "p3"]} />);
 
   const input = screen.getByDisplayValue("") as HTMLInputElement;
 
-  await userEvent.type(input, "2");
-  expect(input.value).toBe("2");
-
+  await userEvent.type(input, "p2");
+  expect(input.value).toBe("p2");
   expect(screen.getAllByRole("option")).toHaveLength(1);
-  await userEvent.click(screen.getByText("Reset"));
+
+  await userEvent.type(input, "{Enter}");
+  expect(screen.getByTestId("guess").textContent).toBe("p2");
   expect(screen.queryAllByRole("option")).toHaveLength(0);
+
+  // onNextQuestion handler should be called on this {Enter}
+  await userEvent.type(input, "{Enter}");
+  expect(screen.getByTestId("guess").textContent).toBe("");
 });
 
 it("should not show choices for empty string", async () => {
