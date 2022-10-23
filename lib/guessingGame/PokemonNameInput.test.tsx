@@ -1,35 +1,31 @@
 import { Fragment, useState } from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PokemonNameInput from "./PokemonNameInput";
+import useResetKey from "lib/useResetKey";
 
 const Test = (props: { choices: readonly string[] }) => {
   const [guessEnabled, setGuessEnabled] = useState(true);
-  const [guess, setGuess] = useState("");
   const [committedGuess, setCommittedGuess] = useState("");
+  const [key, resetKey] = useResetKey();
 
   return (
     <Fragment>
       <span data-testid="guess">{committedGuess}</span>
       <PokemonNameInput
+        key={key}
         guessEnabled={guessEnabled}
         pokemonList={props.choices}
-        value={guess}
-        onChange={setGuess}
         onGuess={(pokemonName) => {
           setGuessEnabled(false);
-          setGuess(pokemonName);
           setCommittedGuess(pokemonName);
         }}
-      />
-      <button
-        onClick={() => {
+        onNextQuestion={() => {
           setGuessEnabled(true);
-          setGuess("");
+          setCommittedGuess("");
+          resetKey();
         }}
-      >
-        Reset
-      </button>
+      />
     </Fragment>
   );
 };
@@ -39,8 +35,8 @@ it("should not enter invalid choice", async () => {
 
   const input = screen.getByDisplayValue("") as HTMLInputElement;
 
-  userEvent.type(input, "p4{Enter}");
-  await waitFor(() => expect(input.value).toBe("p4"));
+  await userEvent.type(input, "p4{Enter}");
+  expect(input.value).toBe("p4");
   expect(screen.getByTestId("guess").textContent).toBe("");
 });
 
@@ -49,12 +45,12 @@ it("should select the first choice (with keyboard)", async () => {
 
   const input = screen.getByDisplayValue("") as HTMLInputElement;
 
-  userEvent.type(input, "2");
-  await waitFor(() => expect(input.value).toBe("2"));
+  await userEvent.type(input, "2");
+  expect(input.value).toBe("2");
 
-  userEvent.type(input, "{ArrowDown}{Enter}");
+  await userEvent.type(input, "{ArrowDown}{Enter}");
 
-  await waitFor(() => expect(input.value).toBe("p2"));
+  expect(input.value).toBe("p2");
   expect(screen.queryAllByRole("option")).toHaveLength(0);
 });
 
@@ -63,27 +59,32 @@ it("should select the first choice (with mouse)", async () => {
 
   const input = screen.getByDisplayValue("") as HTMLInputElement;
 
-  userEvent.type(input, "2");
-  await waitFor(() => expect(input.value).toBe("2"));
+  await userEvent.type(input, "2");
+  expect(input.value).toBe("2");
 
   const [firstOption] = screen.getAllByRole("option");
-  userEvent.click(firstOption);
+  await userEvent.click(firstOption);
 
-  await waitFor(() => expect(input.value).toBe("p2"));
+  expect(input.value).toBe("p2");
   expect(screen.queryAllByRole("option")).toHaveLength(0);
 });
 
-it("should clear auto complete choices on Reset button click", async () => {
+it("should call onNextQuestion on Enter keydown after commit", async () => {
   render(<Test choices={["p1", "p2", "p3"]} />);
 
   const input = screen.getByDisplayValue("") as HTMLInputElement;
 
-  userEvent.type(input, "2");
-  await waitFor(() => expect(input.value).toBe("2"));
-
+  await userEvent.type(input, "p2");
+  expect(input.value).toBe("p2");
   expect(screen.getAllByRole("option")).toHaveLength(1);
-  userEvent.click(screen.getByText("Reset"));
-  await waitFor(() => expect(screen.queryAllByRole("option")).toHaveLength(0));
+
+  await userEvent.type(input, "{Enter}");
+  expect(screen.getByTestId("guess").textContent).toBe("p2");
+  expect(screen.queryAllByRole("option")).toHaveLength(0);
+
+  // onNextQuestion handler should be called on this {Enter}
+  await userEvent.type(input, "{Enter}");
+  expect(screen.getByTestId("guess").textContent).toBe("");
 });
 
 it("should not show choices for empty string", async () => {
@@ -91,13 +92,16 @@ it("should not show choices for empty string", async () => {
 
   const input = screen.getByDisplayValue("") as HTMLInputElement;
 
-  userEvent.type(input, "p");
-  await waitFor(() => expect(input.value).toBe("p"));
+  await userEvent.type(input, "p");
+  expect(input.value).toBe("p");
 
-  userEvent.type(input, "{Backspace}");
-  await waitFor(() => expect(input.value).toBe(""));
-
+  await userEvent.type(input, "{Backspace}");
+  expect(input.value).toBe("");
   expect(screen.queryAllByRole("option")).toHaveLength(0);
+
+  expect(screen.queryByText("Enter a pokemon name is required.")).toBe(null);
+  await userEvent.type(input, "{Enter}");
+  expect(screen.queryByText("Enter a pokemon name is required.")).toBeDefined();
 });
 
 describe("option selection", () => {
@@ -107,8 +111,8 @@ describe("option selection", () => {
     const input = screen.getByDisplayValue("") as HTMLInputElement;
 
     // get all 3 choices to appear ("p" is a prefix for all 3 of them)
-    userEvent.type(input, "p");
-    await waitFor(() => expect(input.value).toBe("p"));
+    await userEvent.type(input, "p");
+    expect(input.value).toBe("p");
 
     const options = screen.getAllByRole("option");
     expect(options).toHaveLength(3);
@@ -123,49 +127,48 @@ describe("option selection", () => {
     const { input, getSelectedState } = await setup();
 
     // focus first option
-    userEvent.type(input, "{ArrowDown}");
-    await waitFor(() =>
-      expect(getSelectedState()).toStrictEqual([true, false, false])
-    );
+    await userEvent.type(input, "{ArrowDown}");
+    expect(getSelectedState()).toStrictEqual([true, false, false]);
 
     // unfocus first option
-    userEvent.type(input, "{ArrowUp}");
-    await waitFor(() =>
-      expect(getSelectedState()).toStrictEqual([false, false, false])
-    );
+    await userEvent.type(input, "{ArrowUp}");
+    expect(getSelectedState()).toStrictEqual([false, false, false]);
   });
 
   it("should deselect on text type", async () => {
     const { input, getSelectedState } = await setup();
 
     // focus first option
-    userEvent.type(input, "{ArrowDown}");
-    await waitFor(() =>
-      expect(getSelectedState()).toStrictEqual([true, false, false])
-    );
+    await userEvent.type(input, "{ArrowDown}");
+    expect(getSelectedState()).toStrictEqual([true, false, false]);
 
     // change the choice list to only list ["p2"]. This should also reset focus.
-    userEvent.type(input, "2");
-    await waitFor(() => {
-      const options = screen.getAllByRole("option");
-      expect(options).toHaveLength(1);
-      expect(getSelectedState(options)).toStrictEqual([false]);
-    });
+    await userEvent.type(input, "2");
+    const options = screen.getAllByRole("option");
+    expect(options).toHaveLength(1);
+    expect(getSelectedState(options)).toStrictEqual([false]);
   });
 
   it("should not go past last option on {ArrowDown}", async () => {
     const { input, getSelectedState } = await setup();
 
     // focus second to last option
-    userEvent.type(input, "{ArrowDown}{ArrowDown}");
-    await waitFor(() =>
-      expect(getSelectedState()).toStrictEqual([false, true, false])
-    );
+    await userEvent.type(input, "{ArrowDown}{ArrowDown}");
+    expect(getSelectedState()).toStrictEqual([false, true, false]);
 
     // try to go past last option
-    userEvent.type(input, "{ArrowDown}{ArrowDown}");
-    await waitFor(() =>
-      expect(getSelectedState()).toStrictEqual([false, false, true])
-    );
+    await userEvent.type(input, "{ArrowDown}{ArrowDown}");
+    expect(getSelectedState()).toStrictEqual([false, false, true]);
+  });
+
+  it("should not select an option on {ArrowDown} when there are no options", async () => {
+    const { input, getSelectedState } = await setup();
+
+    // change the choice list to have 0 items
+    await userEvent.type(input, "4{ArrowDown}{ArrowDown}");
+    // change the choice list to have 3 items
+    await userEvent.type(input, "{Backspace}");
+
+    expect(getSelectedState()).toStrictEqual([false, false, false]);
   });
 });
