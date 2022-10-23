@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import Image from "next/future/image";
-import useScaleStreak from "lib/useScaleStreak";
+import useScaleStreak from "lib/guessingGame/useScaleStreak";
 
 export type BadgeBarProps = {
   streakCount: number;
