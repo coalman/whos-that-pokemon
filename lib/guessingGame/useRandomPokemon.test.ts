@@ -1,10 +1,31 @@
-import {
+import { renderHook, act } from "@testing-library/react";
+import useRandomPokemon, {
   scaleToIndex,
   nextRandomPokemonState,
   initialRandomPokemonState,
   startRandomPokemonState,
   type RandomPokemonState,
 } from "./useRandomPokemon";
+
+describe("useRandomPokemon", () => {
+  it("should return different index on next call", () => {
+    const { result } = renderHook(() => useRandomPokemon(10));
+
+    const firstPokemonIndex = result.current.pokemonIndex;
+    {
+      const { nextPokemonIndex, pokemonIndex } = result.current;
+      expect(typeof pokemonIndex).toBe("number");
+      expect(typeof nextPokemonIndex).toBe("number");
+      expect(nextPokemonIndex).not.toBe(pokemonIndex);
+    }
+
+    act(() => {
+      result.current.nextRandomPokemon(true);
+    });
+
+    expect(firstPokemonIndex).not.toBe(result.current.pokemonIndex);
+  });
+});
 
 describe("scaleToIndex", () => {
   it("should return length-1 for random close to 1", () => {
