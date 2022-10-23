@@ -2,29 +2,28 @@ import { Fragment, useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PokemonNameInput from "./PokemonNameInput";
+import useResetKey from "lib/useResetKey";
 
 const Test = (props: { choices: readonly string[] }) => {
   const [guessEnabled, setGuessEnabled] = useState(true);
-  const [guess, setGuess] = useState("");
   const [committedGuess, setCommittedGuess] = useState("");
+  const [key, resetKey] = useResetKey();
 
   return (
     <Fragment>
       <span data-testid="guess">{committedGuess}</span>
       <PokemonNameInput
+        key={key}
         guessEnabled={guessEnabled}
         pokemonList={props.choices}
-        value={guess}
-        onChange={setGuess}
         onGuess={(pokemonName) => {
           setGuessEnabled(false);
-          setGuess(pokemonName);
           setCommittedGuess(pokemonName);
         }}
         onNextQuestion={() => {
           setGuessEnabled(true);
           setCommittedGuess("");
-          setGuess("");
+          resetKey();
         }}
       />
     </Fragment>

@@ -12,7 +12,7 @@ const badgeCount = 8;
 const badgeImgSrc = (badgeIndex: number) =>
   `/img/badges/${badgeIndex + 1}.webp`;
 
-export const BadgeBar = (props: BadgeBarProps) => {
+const BadgeBar = (props: BadgeBarProps) => {
   const badgesVisible = useScaleStreak({
     stepCount: badgeCount,
     streak: props.streakCount,
@@ -43,6 +43,8 @@ export const BadgeBar = (props: BadgeBarProps) => {
     </div>
   );
 };
+
+export default BadgeBar;
 
 const Badge = (props: { badgeIndex: number; visible: boolean }) => {
   const imgSrc = badgeImgSrc(props.badgeIndex);

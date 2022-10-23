@@ -18,14 +18,14 @@ import {
 export type PokemonNameInputProps = {
   guessEnabled: boolean;
   pokemonList: readonly string[];
-  value: string;
-  onChange: (value: string) => void;
   onGuess: (pokemonName: string) => void;
   onNextQuestion: () => void;
 };
 
 const PokemonNameInput = (props: PokemonNameInputProps) => {
-  const { onGuess, onChange, onNextQuestion } = props;
+  const { onGuess, onNextQuestion } = props;
+
+  const [value, setValue] = useState("");
 
   const refInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -34,19 +34,19 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
   }, []);
 
   const choices: readonly string[] = useMemo(() => {
-    if (props.value.trim() === "") {
+    if (value.trim() === "") {
       return [];
     }
 
     return (
       props.pokemonList
-        .filter((pokemonName) => pokemonName.includes(props.value))
+        .filter((pokemonName) => pokemonName.includes(value))
         // prefer matches near the start of the name
-        .sort((a, b) => a.indexOf(props.value) - b.indexOf(props.value))
+        .sort((a, b) => a.indexOf(value) - b.indexOf(value))
         // limit the number of results.
         .slice(0, 5)
     );
-  }, [props.pokemonList, props.value]);
+  }, [props.pokemonList, value]);
 
   const { error, resetError, checkValidName } = usePokemonNameError(
     props.pokemonList
@@ -89,13 +89,13 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
         autoCapitalize="off"
         autoCorrect="off"
         readOnly={!props.guessEnabled}
-        value={props.value}
+        value={value}
         onInput={(event) => {
           const value = event.currentTarget.value;
 
           resetError();
           resetItemIndex();
-          onChange(value);
+          setValue(value);
         }}
         onKeyDown={(event) => {
           let preventDefault = true;
@@ -111,6 +111,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
 
               if (checkValidName(value)) {
                 resetItemIndex();
+                setValue(value);
                 onGuess(value);
               }
             }
@@ -149,6 +150,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
               tabIndex={-1}
               onClick={() => {
                 resetItemIndex();
+                setValue(pokemonName);
                 onGuess(pokemonName);
                 refInput.current?.focus();
               }}
@@ -160,7 +162,7 @@ const PokemonNameInput = (props: PokemonNameInputProps) => {
       <span id={descriptionId} className="hidden">
         When autocomplete results are available use up and down arrows to review
         and enter to select. Touch device users, explore by touch or with swipe
-        gestures. Only the top 10 relevant results are available at a time.
+        gestures. Only the top 5 relevant results are available at a time.
       </span>
     </div>
   );
