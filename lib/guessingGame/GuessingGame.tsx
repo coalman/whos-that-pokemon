@@ -1,5 +1,5 @@
 import { Fragment, useRef, useEffect, useState } from "react";
-import Image from "next/future/image";
+import Image from "next/image";
 import clsx from "clsx";
 import type { Guess } from "@prisma/client";
 import logoImage from "public/img/pokemon-logo-small.png";

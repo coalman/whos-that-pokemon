@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next";
 import Head from "next/head";
-import Image from "next/future/image";
+import Image from "next/image";
 import prisma from "lib/db";
 import Link from "next/link";
 import pokemonList from "lib/pokemonNames.json";
@@ -22,8 +22,8 @@ const Results: NextPage<{
       <header className="flex py-8 items-end justify-center">
         <h1 className="text-2xl">Results</h1>
         <div className="relative">
-          <Link href="/">
-            <a className="absolute left-4 bottom-0">(Back)</a>
+          <Link href="/" className="absolute left-4 bottom-0">
+            (Back)
           </Link>
         </div>
       </header>

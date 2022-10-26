@@ -17,8 +17,8 @@ const Home: NextPage = () => {
       </main>
 
       <footer className="flex justify-center items-center gap-4 py-4">
-        <Link href="/results">
-          <a className="border border-slate-500 px-2 py-1">View Results</a>
+        <Link href="/results" className="border border-slate-500 px-2 py-1">
+          View Results
         </Link>
         <a
           href="https://github.com/coalman/whos-that-pokemon"
