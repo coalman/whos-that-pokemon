@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import clsx from "clsx";
-import Image from "next/future/image";
+import Image from "next/image";
 
 export type BadgeBarProps = {
   streakCount: number;
